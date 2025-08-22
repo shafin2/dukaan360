@@ -18,7 +18,7 @@ gem "stimulus-rails"
 gem "cssbundling-rails"
 
 # TailwindCSS v3 for ActiveAdmin compatibility
-gem "tailwindcss-ruby", "~> 3.4.17"
+gem "tailwindcss-ruby", "~> 4.1.12"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 
