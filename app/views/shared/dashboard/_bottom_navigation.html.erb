@@ -1,0 +1,14 @@
+<!-- Bottom Navigation -->
+<div class="flex-shrink-0 px-3 pb-4 space-y-1">
+  <a href="#" class="group flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md">
+    <i data-feather="settings" class="w-5 h-5 <%= I18n.locale == :ur ? 'ml-3' : 'mr-3' %>"></i>
+    <%= t('nav.settings') %>
+  </a>
+  
+  <%= link_to destroy_user_session_path,
+      class: "group flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:text-red-900 hover:bg-red-50 rounded-md",
+      data: { turbo_method: :delete } do %>
+    <i data-feather="log-out" class="w-5 h-5 <%= I18n.locale == :ur ? 'ml-3' : 'mr-3' %>"></i>
+    <%= t('nav.logout') %>
+  <% end %>
+</div>

@@ -1,0 +1,169 @@
+<!-- Product Row -->
+<div class="px-6 py-4 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 <%= 'bg-red-50 hover:from-red-50 hover:to-red-100' if @product&.expiry_status == 'critical' || @product&.expiry_status == 'expired' %> <%= 'bg-yellow-50 hover:from-yellow-50 hover:to-yellow-100' if @product&.expiry_status == 'warning' %>">
+  <div class="overflow-x-auto">
+    <div class="min-w-[800px] grid grid-cols-12 gap-4 items-center">
+      <!-- Product Info with Image -->
+      <div class="col-span-3">
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg flex items-center justify-center flex-shrink-0 mr-3 overflow-hidden">
+            <% if product.image_url.present? %>
+              <img src="<%= product.image_url %>" alt="<%= product.name %>" class="w-full h-full object-cover rounded-lg">
+            <% else %>
+              <i data-feather="package" class="w-6 h-6 text-gray-600"></i>
+            <% end %>
+          </div>
+          <div class="min-w-0 flex-1">
+            <%= link_to product_path(product), class: "block group no-underline" do %>
+              <p class="text-sm font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+                <%= product.name %>
+              </p>
+            <% end %>
+            <p class="text-xs text-gray-500 mt-1">
+              <i data-feather="calendar" class="h-3 w-3 mr-1 inline"></i>
+              Added <%= product.created_at.strftime("%b %d") %>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stock Status -->
+      <div class="col-span-2">
+        <div class="flex flex-col">
+          <span class="text-lg font-bold text-gray-900 mb-1">
+            <%= product.quantity %> packs
+          </span>
+          <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-lg 
+            <%= case product.stock_status
+                when 'out_of_stock' then 'bg-red-100 text-red-800'
+                when 'low_stock' then 'bg-orange-100 text-orange-800'
+                else 'bg-green-100 text-green-800'
+                end %>">
+            <%= case product.stock_status
+                when 'out_of_stock' then 'Out of Stock'
+                when 'low_stock' then 'Low Stock'
+                else 'In Stock'
+                end %>
+          </span>
+        </div>
+      </div>
+
+      <!-- Buying Price -->
+      <div class="col-span-2 text-center">
+        <div class="flex flex-col">
+          <span class="text-sm text-gray-500 uppercase tracking-wide">Buying</span>
+          <span class="text-base font-bold text-gray-900">
+            PKR <%= number_with_delimiter(product.buying_price) %>
+          </span>
+          <span class="text-xs text-gray-500">per pack</span>
+        </div>
+      </div>
+
+      <!-- Selling Price -->
+      <div class="col-span-2 text-center">
+        <div class="flex flex-col">
+          <span class="text-sm text-gray-500 uppercase tracking-wide">Selling</span>
+          <span class="text-base font-bold text-green-600">
+            PKR <%= number_with_delimiter(product.selling_price) %>
+          </span>
+          <span class="text-xs font-semibold px-2 py-1 rounded bg-green-100 text-green-700">
+            +<%= product.profit_margin %>%
+          </span>
+        </div>
+      </div>
+
+      <!-- Expiry Date with Color Coding -->
+      <div class="col-span-2 text-center">
+        <div class="flex flex-col items-center">
+          <span class="text-sm font-medium text-gray-900">
+            <%= product.expiry_date.strftime("%b %d, %Y") %>
+          </span>
+          <span class="inline-flex px-2 py-1 text-xs font-medium rounded-lg mt-1 border
+            <%= case product.expiry_status
+                when 'expired' then 'bg-red-100 text-red-800 border-red-200'
+                when 'critical' then 'bg-red-100 text-red-800 border-red-200'
+                when 'warning' then 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                else 'bg-green-100 text-green-800 border-green-200'
+                end %>">
+            <%= case product.expiry_status
+                when 'expired' then 'Expired'
+                when 'critical' then "#{product.days_to_expiry} days left"
+                when 'warning' then "#{product.days_to_expiry} days left"
+                else 'Fresh'
+                end %>
+          </span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="col-span-1 text-right">
+        <div class="relative inline-block text-left">
+          <button type="button" 
+                  onclick="toggleDropdown(this)"
+                  class="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+            <i data-feather="more-vertical" class="w-4 h-4"></i>
+          </button>
+          
+          <!-- Dropdown menu -->
+          <div class="hidden absolute right-0 z-10 mt-2 w-48 rounded-lg shadow-xl bg-white ring-1 ring-black ring-opacity-5 border border-gray-100">
+            <div class="py-2">
+              <%= link_to product_path(product),
+                  class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors no-underline" do %>
+                <i data-feather="eye" class="w-4 h-4 mr-3"></i>
+                View Details
+              <% end %>
+              
+              <%= link_to edit_product_path(product),
+                  class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors no-underline" do %>
+                <i data-feather="edit" class="w-4 h-4 mr-3"></i>
+                Edit Product
+              <% end %>
+              
+              <div class="border-t border-gray-100 my-1"></div>
+              
+              <%= link_to product_path(product),
+                  method: :delete,
+                  data: { 
+                    turbo_method: :delete,
+                    turbo_confirm: "Are you sure you want to delete #{product.name}?"
+                  },
+                  class: "flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors no-underline" do %>
+                <i data-feather="trash-2" class="w-4 h-4 mr-3"></i>
+                Delete Product
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleDropdown(button) {
+    const dropdown = button.nextElementSibling;
+    const isHidden = dropdown.classList.contains('hidden');
+    
+    // Close all other dropdowns
+    document.querySelectorAll('.absolute.z-10').forEach(menu => {
+      if (menu !== dropdown) {
+        menu.classList.add('hidden');
+      }
+    });
+    
+    // Toggle current dropdown
+    if (isHidden) {
+      dropdown.classList.remove('hidden');
+    } else {
+      dropdown.classList.add('hidden');
+    }
+  }
+
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', function(event) {
+    if (!event.target.closest('.relative')) {
+      document.querySelectorAll('.absolute.z-10').forEach(menu => {
+        menu.classList.add('hidden');
+      });
+    }
+  });
+</script>

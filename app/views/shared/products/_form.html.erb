@@ -1,0 +1,233 @@
+<%= form_with model: product, local: true, multipart: true, class: "space-y-4" do |f| %>
+  <!-- Error Messages -->
+  <% if product.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i data-feather="alert-circle" class="w-4 h-4 text-red-400"></i>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            Please fix the following errors:
+          </h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc list-inside space-y-1">
+              <% product.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- Left Column -->
+    <div class="space-y-4">
+      <!-- Product Name -->
+      <div>
+        <%= f.label :name, "Product Name *", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= f.text_field :name,
+            class: "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+            placeholder: "e.g., Basmati Rice 25kg",
+            required: true %>
+        <p class="mt-1 text-xs text-gray-500">Enter the complete product name with pack size</p>
+      </div>
+
+      <!-- Product Image -->
+      <div>
+        <%= f.label :image_url, "Product Image", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <div class="space-y-3">
+          <!-- URL Input -->
+          <%= f.url_field :image_url,
+              id: "image_url_input",
+              class: "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+              placeholder: "Enter image URL (e.g., https://example.com/image.jpg)",
+              onchange: "updateImagePreview()" %>
+          
+          <!-- File Upload Area -->
+          <div class="relative">
+            <input type="file" 
+                   id="image_file_input" 
+                   accept="image/*" 
+                   class="hidden"
+                   onchange="handleImageUpload(event)">
+            
+            <div onclick="document.getElementById('image_file_input').click()" 
+                 class="cursor-pointer border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 hover:bg-blue-50 transition-colors">
+              <div id="upload_area_content">
+                <i data-feather="upload" class="mx-auto h-8 w-8 text-gray-400 mb-2"></i>
+                <div class="text-sm text-gray-600">
+                  <span class="font-medium">Click to upload</span> or drag and drop
+                </div>
+                <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF up to 2MB</p>
+              </div>
+              
+              <!-- Image Preview -->
+              <div id="image_preview" class="hidden">
+                <img id="preview_img" class="mx-auto h-32 w-32 object-cover rounded-lg border">
+                <p class="text-sm text-gray-600 mt-2">Click to change image</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buying Price -->
+      <div>
+        <%= f.label :buying_price, "Buying Price per Pack *", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <span class="text-gray-500 text-sm">PKR</span>
+          </div>
+          <%= f.number_field :buying_price,
+              step: 0.01,
+              min: 0,
+              class: "block w-full pl-12 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+              placeholder: "0.00",
+              required: true %>
+        </div>
+        <p class="mt-1 text-xs text-gray-500">Cost price you paid for one pack</p>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="space-y-4">
+      <!-- Selling Price -->
+      <div>
+        <%= f.label :selling_price, "Selling Price per Pack *", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <span class="text-gray-500 text-sm">PKR</span>
+          </div>
+          <%= f.number_field :selling_price,
+              step: 0.01,
+              min: 0,
+              class: "block w-full pl-12 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+              placeholder: "0.00",
+              required: true,
+              onchange: "calculateProfit()" %>
+        </div>
+        <p class="mt-1 text-xs text-gray-500">Price you will sell one pack for</p>
+      </div>
+
+      <!-- Quantity (Packs) -->
+      <div>
+        <%= f.label :quantity, "Number of Packs *", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= f.number_field :quantity,
+            min: 0,
+            class: "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+            placeholder: "0",
+            required: true %>
+        <p class="mt-1 text-xs text-gray-500">How many packs did you buy?</p>
+      </div>
+
+      <!-- Expiry Date -->
+      <div>
+        <%= f.label :expiry_date, "Expiry Date *", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= f.date_field :expiry_date,
+            min: Date.current,
+            class: "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+            required: true %>
+        <p class="mt-1 text-xs text-gray-500">When does this batch expire?</p>
+      </div>
+
+      <!-- Profit Margin Display -->
+      <div class="bg-gray-50 rounded-lg p-3">
+        <div class="text-sm">
+          <span class="font-medium text-gray-700">Profit per Pack: </span>
+          <span id="profit-display" class="font-semibold">--</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="flex flex-col sm:flex-row sm:justify-end sm:gap-3 pt-4 border-t border-gray-200">
+    <%= link_to products_path,
+        class: "w-full sm:w-auto inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors mb-3 sm:mb-0 no-underline" do %>
+      Cancel
+    <% end %>
+    
+    <%= f.submit product.new_record? ? "Add Product" : "Update Product",
+        class: "w-full sm:w-auto inline-flex justify-center items-center px-6 py-2 border border-transparent rounded-lg shadow-sm bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors" %>
+  </div>
+<% end %>
+
+<script>
+  // Image handling functions
+  function updateImagePreview() {
+    const imageUrl = document.getElementById('image_url_input').value;
+    const previewContainer = document.getElementById('image_preview');
+    const uploadAreaContent = document.getElementById('upload_area_content');
+    const previewImg = document.getElementById('preview_img');
+    
+    if (imageUrl && imageUrl.trim() !== '') {
+      previewImg.src = imageUrl;
+      previewContainer.classList.remove('hidden');
+      uploadAreaContent.classList.add('hidden');
+    } else {
+      previewContainer.classList.add('hidden');
+      uploadAreaContent.classList.remove('hidden');
+    }
+  }
+  
+  function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+        alert('File size must be less than 2MB');
+        return;
+      }
+      
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const imageUrl = e.target.result;
+        document.getElementById('image_url_input').value = imageUrl;
+        updateImagePreview();
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+  
+  function calculateProfit() {
+    const buyingPrice = parseFloat(document.getElementById('product_buying_price').value) || 0;
+    const sellingPrice = parseFloat(document.getElementById('product_selling_price').value) || 0;
+    const profitDisplay = document.getElementById('profit-display');
+    
+    if (buyingPrice > 0 && sellingPrice > 0) {
+      const profitMargin = ((sellingPrice - buyingPrice) / buyingPrice * 100).toFixed(1);
+      const profitAmount = (sellingPrice - buyingPrice).toFixed(2);
+      
+      let color = 'text-green-600';
+      if (profitMargin < 10) color = 'text-orange-600';
+      if (profitMargin < 5) color = 'text-red-600';
+      
+      profitDisplay.innerHTML = `<span class="${color}">PKR ${profitAmount} (${profitMargin}%)</span>`;
+    } else {
+      profitDisplay.innerHTML = '<span class="text-gray-400">--</span>';
+    }
+  }
+
+  // Calculate initial profit if values exist
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize feather icons
+    feather.replace();
+    
+    calculateProfit();
+    updateImagePreview();
+    
+    // Also bind to buying price changes
+    const buyingPriceField = document.getElementById('product_buying_price');
+    const sellingPriceField = document.getElementById('product_selling_price');
+    
+    if (buyingPriceField) buyingPriceField.addEventListener('input', calculateProfit);
+    if (sellingPriceField) sellingPriceField.addEventListener('input', calculateProfit);
+  });
+</script>

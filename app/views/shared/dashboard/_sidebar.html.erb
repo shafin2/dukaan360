@@ -1,0 +1,72 @@
+<!-- Desktop Sidebar -->
+<div class="hidden md:flex md:w-64 md:flex-col">
+  <div class="flex flex-col flex-grow pt-5 overflow-y-auto bg-white/80 backdrop-blur-sm border-r border-gray-200 shadow-sm">
+    <!-- Logo -->
+    <div class="flex items-center flex-shrink-0 px-6 pb-4">
+      <%= link_to dashboard_index_path, class: "flex items-center no-underline" do %>
+        <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+          <span class="text-white font-bold text-lg">D</span>
+        </div>
+        <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Dukaan360</span>
+      <% end %>
+    </div>
+    
+    <!-- Shop Info -->
+    <div class="px-6 pb-4 mb-4 border-b border-gray-100">
+      <div class="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-4">
+        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1"><%= t('shop.name') %></div>
+        <div class="font-semibold text-gray-900 text-sm truncate"><%= current_user.shop.name %></div>
+        <div class="text-xs text-gray-500 mt-2 flex items-center">
+          <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+          <%= current_user.role.humanize %> • <%= current_user.name %>
+        </div>
+      </div>
+    </div>
+    
+    <%= render 'shared/dashboard/navigation' %>
+    <%= render 'shared/dashboard/bottom_navigation' %>
+  </div>
+</div>
+
+<!-- Mobile Sidebar -->
+<div class="md:hidden fixed inset-0 z-40 flex" id="mobile-menu-overlay" style="display: none;">
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-gray-600 bg-opacity-75" id="mobile-backdrop"></div>
+  
+  <!-- Slide-out panel -->
+  <div class="relative flex flex-col flex-1 w-full max-w-xs bg-white/95 backdrop-blur-sm">
+    <!-- Close button -->
+    <div class="absolute top-0 right-0 -mr-12 pt-2">
+      <button type="button" class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" id="mobile-close-button">
+        <i data-feather="x" class="h-6 w-6 text-white"></i>
+      </button>
+    </div>
+    
+    <div class="flex flex-col flex-grow pt-5 overflow-y-auto">
+      <!-- Logo -->
+      <div class="flex items-center flex-shrink-0 px-6 pb-4">
+        <%= link_to dashboard_index_path, class: "flex items-center no-underline" do %>
+          <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+            <span class="text-white font-bold text-lg">D</span>
+          </div>
+          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Dukaan360</span>
+        <% end %>
+      </div>
+      
+      <!-- Shop Info -->
+      <div class="px-6 pb-4 mb-4 border-b border-gray-100">
+        <div class="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-4">
+          <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1"><%= t('shop.name') %></div>
+          <div class="font-semibold text-gray-900 text-sm truncate"><%= current_user.shop.name %></div>
+          <div class="text-xs text-gray-500 mt-2 flex items-center">
+            <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+            <%= current_user.role.humanize %> • <%= current_user.name %>
+          </div>
+        </div>
+      </div>
+      
+      <%= render 'shared/dashboard/navigation' %>
+      <%= render 'shared/dashboard/bottom_navigation' %>
+    </div>
+  </div>
+</div>

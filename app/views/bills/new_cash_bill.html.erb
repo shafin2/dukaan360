@@ -1,0 +1,228 @@
+<% content_for :title, "Create Cash Bill" %>
+
+<div class="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
+  <div class="max-w-5xl mx-auto p-6">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Create Cash Bill</h1>
+      <p class="text-gray-600 mt-2">Record a cash sale with immediate payment</p>
+    </div>
+
+    <%= form_with(model: @bill, local: true, html: { class: "space-y-8", id: "cash-bill-form" }) do |form| %>
+      <%= form.hidden_field :bill_type, value: "cash" %>
+      
+      <% if @bill.errors.any? %>
+        <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+          <h3 class="text-red-800 font-medium mb-2"><%= pluralize(@bill.errors.count, "error") %> prohibited this bill from being saved:</h3>
+          <ul class="text-red-700 text-sm list-disc list-inside">
+            <% @bill.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <!-- Bill Items -->
+      <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20">
+        <div class="px-6 py-4 border-b border-gray-100">
+          <h3 class="text-lg font-semibold text-gray-900">Items</h3>
+        </div>
+        <div class="px-6 py-6">
+          <div id="bill-items-container">
+            <%= form.fields_for :bill_items do |item_form| %>
+              <div class="bill-item border border-gray-200 rounded-lg p-4 mb-4">
+                <div class="flex justify-between items-start mb-4">
+                  <h4 class="text-sm font-medium text-gray-900">Item</h4>
+                  <button type="button" class="remove-item text-red-600 hover:text-red-800" style="display:none;">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                  </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div class="md:col-span-2">
+                    <%= item_form.label :product_id, "Product", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                    <%= item_form.select :product_id, 
+                        options_from_collection_for_select(@products, :id, 
+                          proc { |p| "#{p.name} (PKR #{p.selling_price}) - Stock: #{p.quantity}" },
+                          item_form.object.product_id),
+                        { prompt: "Select a product..." },
+                        { class: "product-select w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500" } %>
+                  </div>
+                  
+                  <div>
+                    <%= item_form.label :quantity, class: "block text-sm font-medium text-gray-700 mb-2" %>
+                    <%= item_form.number_field :quantity, 
+                        min: 1,
+                        class: "quantity-input w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500",
+                        placeholder: "Quantity" %>
+                  </div>
+                  
+                  <div>
+                    <%= item_form.label :unit_price, "Unit Price (PKR)", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                    <%= item_form.number_field :unit_price, 
+                        step: 0.01,
+                        class: "unit-price-input w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500",
+                        placeholder: "0.00" %>
+                  </div>
+                </div>
+                
+                <div class="mt-4 flex justify-between items-center">
+                  <span class="text-sm text-gray-600">Item Total: <span class="item-total font-medium">PKR 0.00</span></span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+          
+          <div class="mt-4">
+            <button type="button" id="add-bill-item" class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+              </svg>
+              Add Item
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes Section -->
+      <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20">
+        <div class="px-6 py-4 border-b border-gray-100">
+          <h3 class="text-lg font-semibold text-gray-900">Notes</h3>
+        </div>
+        <div class="px-6 py-6">
+          <%= form.text_area :notes, 
+              rows: 3,
+              class: "w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors",
+              placeholder: "Any notes for this cash bill..." %>
+        </div>
+      </div>
+
+      <!-- Total and Submit -->
+      <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20">
+        <div class="px-6 py-6">
+          <div class="flex justify-between items-center mb-6">
+            <span class="text-xl font-semibold text-gray-900">Total Amount:</span>
+            <span id="bill-total" class="text-2xl font-bold text-green-600">PKR 0.00</span>
+          </div>
+          
+          <div class="flex space-x-4">
+            <%= link_to "Cancel", bills_path, 
+                class: "flex-1 px-6 py-3 bg-gray-500 text-white text-center font-medium rounded-xl hover:bg-gray-600 transition-colors no-underline" %>
+            <%= form.submit "Create Cash Bill", 
+                class: "flex-1 px-6 py-3 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors cursor-pointer" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  let billItemIndex = <%= @bill.bill_items.length %>;
+  
+  function addBillItem() {
+    const container = document.getElementById('bill-items-container');
+    const firstItem = container.querySelector('.bill-item');
+    const newItem = firstItem.cloneNode(true);
+    
+    // Clear values
+    newItem.querySelectorAll('input, select').forEach(input => {
+      if (input.type === 'hidden' && input.name.includes('_destroy')) return;
+      input.value = '';
+      if (input.name) {
+        input.name = input.name.replace(/\[\d+\]/, `[${billItemIndex}]`);
+      }
+      if (input.id) {
+        input.id = input.id.replace(/_\d+_/, `_${billItemIndex}_`);
+      }
+    });
+    
+    // Show remove button for new items
+    const removeBtn = newItem.querySelector('.remove-item');
+    if (removeBtn) {
+      removeBtn.style.display = 'block';
+      removeBtn.addEventListener('click', function() {
+        if (container.querySelectorAll('.bill-item').length > 1) {
+          newItem.remove();
+          calculateTotal();
+        }
+      });
+    }
+    
+    setupBillItemListeners(newItem);
+    container.appendChild(newItem);
+    billItemIndex++;
+  }
+  
+  function setupBillItemListeners(item) {
+    const productSelect = item.querySelector('.product-select');
+    const quantityInput = item.querySelector('.quantity-input');
+    const unitPriceInput = item.querySelector('.unit-price-input');
+    
+    if (productSelect) {
+      productSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption && selectedOption.value) {
+          // Find the product data from the global products array
+          <% @products.each do |product| %>
+            if (this.value == '<%= product.id %>') {
+              unitPriceInput.value = '<%= product.selling_price %>';
+              updateItemTotal(item);
+              calculateTotal();
+            }
+          <% end %>
+        }
+      });
+    }
+    
+    [quantityInput, unitPriceInput].forEach(input => {
+      if (input) {
+        input.addEventListener('input', function() {
+          updateItemTotal(item);
+          calculateTotal();
+        });
+      }
+    });
+  }
+  
+  function updateItemTotal(item) {
+    const quantity = parseFloat(item.querySelector('.quantity-input').value) || 0;
+    const unitPrice = parseFloat(item.querySelector('.unit-price-input').value) || 0;
+    const total = quantity * unitPrice;
+    item.querySelector('.item-total').textContent = 'PKR ' + total.toFixed(2);
+  }
+  
+  function calculateTotal() {
+    let total = 0;
+    document.querySelectorAll('.bill-item').forEach(item => {
+      const quantity = parseFloat(item.querySelector('.quantity-input').value) || 0;
+      const unitPrice = parseFloat(item.querySelector('.unit-price-input').value) || 0;
+      total += quantity * unitPrice;
+    });
+    document.getElementById('bill-total').textContent = 'PKR ' + total.toFixed(2);
+  }
+  
+  // Event listeners
+  document.getElementById('add-bill-item').addEventListener('click', addBillItem);
+  
+  // Setup existing items
+  document.querySelectorAll('.bill-item').forEach(setupBillItemListeners);
+  
+  // Show remove button for additional items
+  document.querySelectorAll('.remove-item').forEach((btn, index) => {
+    if (index > 0) btn.style.display = 'block';
+    btn.addEventListener('click', function() {
+      const container = document.getElementById('bill-items-container');
+      if (container.querySelectorAll('.bill-item').length > 1) {
+        btn.closest('.bill-item').remove();
+        calculateTotal();
+      }
+    });
+  });
+  
+  calculateTotal();
+});
+</script>

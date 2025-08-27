@@ -1,0 +1,24 @@
+<% if product.expiry_date.present? %>
+  <% days_until_expiry = (product.expiry_date - Date.current).to_i %>
+  <% if days_until_expiry < 0 %>
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 <%= I18n.locale == :ur ? 'mr-2' : 'ml-2' %>">
+      <i data-feather="x-circle" class="h-3 w-3 <%= I18n.locale == :ur ? 'ml-1' : 'mr-1' %>"></i>
+      <%= t('products.status.expired') %>
+    </span>
+  <% elsif days_until_expiry <= 7 %>
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 <%= I18n.locale == :ur ? 'mr-2' : 'ml-2' %>">
+      <i data-feather="alert-triangle" class="h-3 w-3 <%= I18n.locale == :ur ? 'ml-1' : 'mr-1' %>"></i>
+      <%= t('products.status.expires_soon', days: days_until_expiry) %>
+    </span>
+  <% elsif days_until_expiry <= 30 %>
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 <%= I18n.locale == :ur ? 'mr-2' : 'ml-2' %>">
+      <i data-feather="clock" class="h-3 w-3 <%= I18n.locale == :ur ? 'ml-1' : 'mr-1' %>"></i>
+      <%= t('products.status.expires_in_month') %>
+    </span>
+  <% else %>
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 <%= I18n.locale == :ur ? 'mr-2' : 'ml-2' %>">
+      <i data-feather="check-circle" class="h-3 w-3 <%= I18n.locale == :ur ? 'ml-1' : 'mr-1' %>"></i>
+      <%= t('products.status.fresh') %>
+    </span>
+  <% end %>
+<% end %>

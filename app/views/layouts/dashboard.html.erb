@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>" dir="<%= I18n.locale == :ur ? 'rtl' : 'ltr' %>">
+  <head>
+    <title>Dukaan360</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application.tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+    
+    <!-- Custom Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+  </head>
+
+  <body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 <%= I18n.locale == :ur ? 'font-urdu' : 'font-sans' %>">
+    <div class="flex h-screen">
+      <!-- Sidebar -->
+      <%= render 'shared/dashboard/sidebar' %>
+
+      <!-- Main content -->
+      <div class="flex flex-col flex-1 overflow-hidden">
+        <%= render 'shared/dashboard/header' %>
+
+        <!-- Page content -->
+        <main class="flex-1 overflow-y-auto bg-transparent">
+          <div class="min-h-full">
+            <%= yield %>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Initialize Feather icons and Mobile menu -->
+    <script>
+      feather.replace();
+      
+      // Mobile menu functionality
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+      const mobileCloseButton = document.getElementById('mobile-close-button');
+      const mobileBackdrop = document.getElementById('mobile-backdrop');
+      
+      function openMobileMenu() {
+        mobileMenuOverlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      }
+      
+      function closeMobileMenu() {
+        mobileMenuOverlay.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+      
+      if (mobileMenuButton) {
+        mobileMenuButton.addEventListener('click', openMobileMenu);
+      }
+      
+      if (mobileCloseButton) {
+        mobileCloseButton.addEventListener('click', closeMobileMenu);
+      }
+      
+      if (mobileBackdrop) {
+        mobileBackdrop.addEventListener('click', closeMobileMenu);
+      }
+      
+      // Close mobile menu when clicking on nav links
+      const mobileNavLinks = document.querySelectorAll('#mobile-menu-overlay a');
+      mobileNavLinks.forEach(link => {
+        link.addEventListener('click', closeMobileMenu);
+      });
+      
+      // User dropdown functionality
+      function toggleUserDropdown() {
+        const dropdown = document.getElementById('user-dropdown');
+        const isHidden = dropdown.classList.contains('hidden');
+        
+        if (isHidden) {
+          dropdown.classList.remove('hidden');
+        } else {
+          dropdown.classList.add('hidden');
+        }
+      }
+
+      // Close user dropdown when clicking outside
+      document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('user-dropdown');
+        const button = event.target.closest('button[onclick="toggleUserDropdown()"]');
+        
+        if (!button && dropdown && !dropdown.contains(event.target)) {
+          dropdown.classList.add('hidden');
+        }
+      });
+      
+      // Re-initialize feather icons after any dynamic content loads
+      document.addEventListener('turbo:load', function() {
+        feather.replace();
+      });
+    </script>
+  </body>
+</html>

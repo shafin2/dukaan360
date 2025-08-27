@@ -1,0 +1,180 @@
+<script>
+  function openPaymentModal(billId, billNumber, outstandingAmount) {
+    document.getElementById('modalBillNumber').textContent = billNumber;
+    document.getElementById('modalOutstanding').textContent = 'PKR ' + outstandingAmount.toFixed(2);
+    document.getElementById('paymentForm').action = '/bills/' + billId + '/payments';
+    document.getElementById('paymentAmount').max = outstandingAmount;
+    document.getElementById('paymentAmount').value = outstandingAmount; // Pre-fill with full amount
+    document.getElementById('paymentModal').classList.remove('hidden');
+    
+    // Clear any previous messages
+    const messageDiv = document.getElementById('paymentMessage');
+    if (messageDiv) {
+      messageDiv.remove();
+    }
+  }
+
+  function closePaymentModal() {
+    document.getElementById('paymentModal').classList.add('hidden');
+    document.getElementById('paymentForm').reset();
+    // Reset date to today
+    document.getElementById('paymentDate').value = '<%= Date.current.strftime('%Y-%m-%d') %>';
+  }
+
+  // Handle payment form submission
+  document.addEventListener('DOMContentLoaded', function() {
+    const paymentForm = document.getElementById('paymentForm');
+    if (paymentForm) {
+      paymentForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const form = this;
+        const formData = new FormData(form);
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        
+        // Show loading state
+        submitBtn.textContent = 'Processing...';
+        submitBtn.disabled = true;
+        
+        fetch(form.action, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            // Show success message
+            showPaymentMessage('Payment recorded successfully! PKR ' + data.payment.amount + ' via ' + data.payment.method, 'success');
+            
+            // Update the bill row in the table (if on bills index page)
+            updateBillRow(data.bill.id, data.bill);
+            
+            // Update bill show page elements (if on bill show page)
+            updateBillShowPage(data.bill);
+            
+            // Close modal after 2 seconds
+            setTimeout(() => {
+              closePaymentModal();
+              // Reload page if on bill show page to reflect changes
+              if (window.location.pathname.includes('/bills/') && !window.location.pathname.includes('/bills/new')) {
+                window.location.reload();
+              }
+            }, 2000);
+          } else {
+            // Show error messages
+            const errors = data.errors ? data.errors.join(', ') : 'Unknown error occurred';
+            showPaymentMessage('Error: ' + errors, 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Payment Error Details:', error);
+          showPaymentMessage('An error occurred while processing the payment. Please try again.', 'error');
+        })
+        .finally(() => {
+          // Reset button
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
+        });
+      });
+    }
+  });
+
+  function showPaymentMessage(message, type) {
+    // Remove existing message
+    const existingMessage = document.getElementById('paymentMessage');
+    if (existingMessage) {
+      existingMessage.remove();
+    }
+    
+    // Create new message
+    const messageDiv = document.createElement('div');
+    messageDiv.id = 'paymentMessage';
+    messageDiv.className = `p-4 rounded-xl mb-4 ${
+      type === 'success' 
+        ? 'bg-green-50 border border-green-200 text-green-800' 
+        : 'bg-red-50 border border-red-200 text-red-800'
+    }`;
+    messageDiv.innerHTML = `
+      <div class="flex items-center">
+        <i data-feather="${type === 'success' ? 'check-circle' : 'alert-circle'}" class="w-5 h-5 mr-2"></i>
+        <span>${message}</span>
+      </div>
+    `;
+    
+    // Insert at top of form
+    const form = document.getElementById('paymentForm');
+    form.insertBefore(messageDiv, form.firstChild);
+    
+    // Replace feather icons
+    feather.replace();
+  }
+
+  function updateBillRow(billId, billData) {
+    const billRow = document.querySelector(`tr[data-bill-id="${billId}"]`);
+    if (billRow) {
+      // Update paid amount
+      const paidCell = billRow.querySelector('.paid-amount');
+      if (paidCell) {
+        paidCell.textContent = 'PKR ' + Math.round(billData.total_paid).toLocaleString();
+      }
+      
+      // Update outstanding amount
+      const outstandingCell = billRow.querySelector('.outstanding-amount');
+      if (outstandingCell) {
+        const amount = Math.round(billData.outstanding_amount);
+        outstandingCell.textContent = 'PKR ' + amount.toLocaleString();
+        outstandingCell.className = amount > 0 ? 'outstanding-amount text-red-600 font-semibold' : 'outstanding-amount text-green-600 font-semibold';
+      }
+      
+      // Update status badge
+      const statusBadge = billRow.querySelector('.status-badge');
+      if (statusBadge) {
+        statusBadge.textContent = billData.status === 'cash' ? 'Paid (Cash)' : billData.status.charAt(0).toUpperCase() + billData.status.slice(1);
+        
+        // Update status badge classes
+        statusBadge.className = 'status-badge inline-flex px-2 py-1 text-xs font-semibold rounded-full ';
+        if (billData.status === 'paid' || billData.status === 'cash') {
+          statusBadge.className += 'bg-green-100 text-green-800';
+        } else if (billData.status === 'partial') {
+          statusBadge.className += 'bg-orange-100 text-orange-800';
+        } else {
+          statusBadge.className += 'bg-red-100 text-red-800';
+        }
+      }
+      
+      // Hide payment button if fully paid
+      if (billData.outstanding_amount <= 0) {
+        const paymentBtn = billRow.querySelector('button[onclick*="openPaymentModal"]');
+        if (paymentBtn) {
+          paymentBtn.style.display = 'none';
+        }
+      }
+    }
+  }
+
+  function updateBillShowPage(billData) {
+    // Update outstanding amount in sidebar (if on bill show page)
+    const outstandingElement = document.querySelector('.bill-outstanding-amount');
+    if (outstandingElement) {
+      const amount = billData.outstanding_amount;
+      outstandingElement.textContent = 'PKR ' + amount.toFixed(2);
+      outstandingElement.className = amount > 0 ? 'bill-outstanding-amount font-bold text-lg text-red-600' : 'bill-outstanding-amount font-bold text-lg text-green-600';
+    }
+    
+    // Update paid amount
+    const paidElement = document.querySelector('.bill-paid-amount');
+    if (paidElement) {
+      paidElement.textContent = 'PKR ' + billData.total_paid.toFixed(2);
+    }
+  }
+</script> 

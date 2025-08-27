@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  customer: one
+  user: one
+  shop: one
+  bill_number: MyString
+  total_amount: 9.99
+  status: MyString
+  bill_date: 2025-08-17 16:28:58
+  notes: MyText
+
+two:
+  customer: two
+  user: two
+  shop: two
+  bill_number: MyString
+  total_amount: 9.99
+  status: MyString
+  bill_date: 2025-08-17 16:28:58
+  notes: MyText

@@ -1,0 +1,160 @@
+<% content_for :page_title, t('dashboard.title') %>
+
+<div class="p-6 max-w-7xl mx-auto">
+  <!-- Welcome Section -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900 mb-2">
+      <%= t('dashboard.welcome') %>
+    </h1>
+    <p class="text-gray-600">
+      <%= @shop.name %> • <%= Date.current.strftime("%B %d, %Y") %>
+    </p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Total Products -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200">
+      <div class="p-6">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <i data-feather="package" class="w-6 h-6 text-blue-600"></i>
+            </div>
+          </div>
+          <div class="<%= I18n.locale == :ur ? 'mr-4' : 'ml-4' %>">
+            <p class="text-sm font-medium text-gray-600"><%= t('dashboard.total_products') %></p>
+            <p class="text-2xl font-bold text-gray-900"><%= @total_products %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Low Stock Items -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200">
+      <div class="p-6">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+              <i data-feather="alert-triangle" class="w-6 h-6 text-orange-600"></i>
+            </div>
+          </div>
+          <div class="<%= I18n.locale == :ur ? 'mr-4' : 'ml-4' %>">
+            <p class="text-sm font-medium text-gray-600"><%= t('dashboard.low_stock') %></p>
+            <p class="text-2xl font-bold text-gray-900"><%= @low_stock_items %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Today's Sales -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200">
+      <div class="p-6">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <i data-feather="trending-up" class="w-6 h-6 text-green-600"></i>
+            </div>
+          </div>
+          <div class="<%= I18n.locale == :ur ? 'mr-4' : 'ml-4' %>">
+            <p class="text-sm font-medium text-gray-600"><%= t('dashboard.today_sales') %></p>
+            <p class="text-2xl font-bold text-gray-900">PKR <%= number_with_delimiter(@today_sales) %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Revenue -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200">
+      <div class="p-6">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+              <i data-feather="dollar-sign" class="w-6 h-6 text-purple-600"></i>
+            </div>
+          </div>
+          <div class="<%= I18n.locale == :ur ? 'mr-4' : 'ml-4' %>">
+            <p class="text-sm font-medium text-gray-600"><%= t('dashboard.total_revenue') %></p>
+            <p class="text-2xl font-bold text-gray-900">PKR <%= number_with_delimiter(@total_revenue) %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4"><%= t('dashboard.quick_actions') %></h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <button class="flex items-center p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center <%= I18n.locale == :ur ? 'ml-3' : 'mr-3' %>">
+          <i data-feather="plus" class="w-5 h-5 text-blue-600"></i>
+        </div>
+        <span class="font-medium text-gray-900"><%= t('dashboard.add_product') %></span>
+      </button>
+      
+      <button class="flex items-center p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center <%= I18n.locale == :ur ? 'ml-3' : 'mr-3' %>">
+          <i data-feather="shopping-cart" class="w-5 h-5 text-green-600"></i>
+        </div>
+        <span class="font-medium text-gray-900"><%= t('dashboard.new_sale') %></span>
+      </button>
+      
+      <button class="flex items-center p-4 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center <%= I18n.locale == :ur ? 'ml-3' : 'mr-3' %>">
+          <i data-feather="archive" class="w-5 h-5 text-purple-600"></i>
+        </div>
+        <span class="font-medium text-gray-900"><%= t('dashboard.view_inventory') %></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Recent Sales -->
+  <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-900"><%= t('dashboard.recent_sales') %></h2>
+    </div>
+    <div class="divide-y divide-gray-200">
+      <% if @recent_sales.any? %>
+        <% @recent_sales.each do |sale| %>
+          <div class="p-6">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center <%= I18n.locale == :ur ? 'ml-4' : 'mr-4' %>">
+                  <i data-feather="shopping-bag" class="w-5 h-5 text-gray-600"></i>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-900">
+                    <%= sale.product.name %>
+                  </p>
+                  <p class="text-sm text-gray-600">
+                    <%= t('common.by', name: sale.user.name) %> • 
+                    <%= time_ago_in_words(sale.created_at) %> ago
+                  </p>
+                </div>
+              </div>
+              <div class="text-<%= I18n.locale == :ur ? 'left' : 'right' %>">
+                <p class="font-medium text-gray-900">
+                  PKR <%= number_with_delimiter(sale.total_amount) %>
+                </p>
+                <p class="text-sm text-gray-600">
+                  Qty: <%= sale.quantity %>
+                </p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="p-6 text-center">
+          <i data-feather="inbox" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
+          <p class="text-gray-600">No recent sales found</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Re-initialize feather icons after content loads
+  feather.replace();
+</script>

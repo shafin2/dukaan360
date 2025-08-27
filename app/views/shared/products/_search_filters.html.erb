@@ -1,0 +1,80 @@
+<!-- Search and Filters -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6 mb-6">
+  <%= form_with url: products_path, method: :get, local: true, class: "space-y-4 sm:space-y-0 sm:flex sm:items-end sm:gap-4" do |f| %>
+    <!-- Search Input -->
+    <div class="flex-1 min-w-0">
+      <%= f.label :search, t('products.search.label'), class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= f.text_field :search, 
+          value: params[:search],
+          placeholder: t('products.search.placeholder'),
+          class: "block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="sm:min-w-[200px]">
+      <%= f.label :category, t('products.filters.category'), class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= f.select :category, 
+          options_for_select([
+            [t('products.filters.all_categories'), '']
+          ] + @categories.map { |cat| [cat, cat] }, params[:category]),
+          {},
+          class: "block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+    </div>
+
+    <!-- Sort Options -->
+    <div class="sm:min-w-[150px]">
+      <%= f.label :sort_by, t('products.filters.sort_by'), class: "block text-sm font-medium text-gray-700 mb-2" %>
+      <%= f.select :sort_by,
+          options_for_select([
+            [t('products.sort.newest'), ''],
+            [t('products.sort.name'), 'name'],
+            [t('products.sort.price'), 'price'],
+            [t('products.sort.quantity'), 'quantity'],
+            [t('products.sort.category'), 'category'],
+            [t('products.sort.expiry'), 'expiry_date']
+          ], params[:sort_by]),
+          {},
+          class: "block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+    </div>
+
+    <!-- Sort Direction -->
+    <div>
+      <%= f.hidden_field :sort_direction, value: params[:sort_direction] %>
+      <button type="button" 
+              onclick="toggleSortDirection(this)"
+              class="flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-6">
+        <i data-feather="<%= params[:sort_direction] == 'desc' ? 'arrow-down' : 'arrow-up' %>" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- Search Button -->
+    <div class="flex gap-2">
+      <%= f.submit t('common.search'), 
+          class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors" %>
+      
+      <%= link_to products_path,
+          class: "inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors" do %>
+        <%= t('common.clear') %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  function toggleSortDirection(button) {
+    const hiddenField = button.previousElementSibling;
+    const currentDirection = hiddenField.value;
+    const newDirection = currentDirection === 'desc' ? 'asc' : 'desc';
+    
+    hiddenField.value = newDirection;
+    
+    // Update icon
+    const icon = button.querySelector('[data-feather]');
+    const iconName = newDirection === 'desc' ? 'arrow-down' : 'arrow-up';
+    icon.setAttribute('data-feather', iconName);
+    feather.replace();
+    
+    // Submit form
+    button.closest('form').submit();
+  }
+</script>

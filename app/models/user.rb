@@ -7,6 +7,9 @@ class User < ApplicationRecord
   belongs_to :shop
   has_many :products, foreign_key: :created_by_id, dependent: :destroy
   has_many :sales, dependent: :destroy
+  has_many :customers, dependent: :destroy
+  has_many :bills, dependent: :destroy
+  has_many :payments, dependent: :destroy
   
   # Role enum
   enum :role, { owner: 0, worker: 1 }
@@ -19,6 +22,6 @@ class User < ApplicationRecord
   end
 
   def self.ransackable_associations(auth_object = nil)
-    ["products", "sales", "shop"]
+    ["products", "sales", "shop", "customers", "bills", "payments"]
   end
 end

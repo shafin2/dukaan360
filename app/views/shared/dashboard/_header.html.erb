@@ -1,0 +1,99 @@
+<!-- Top header -->
+<header class="bg-white border-b border-gray-200">
+  <div class="flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16">
+    <!-- Mobile menu button -->
+    <button type="button" class="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500" id="mobile-menu-button">
+      <span class="sr-only">Open sidebar</span>
+      <i data-feather="menu" class="w-6 h-6"></i>
+    </button>
+    
+    <!-- Breadcrumb -->
+    <div class="flex-1 flex items-center <%= I18n.locale == :ur ? 'mr-4' : 'ml-4' %> md:ml-0">
+      <nav class="flex" aria-label="Breadcrumb">
+        <ol class="flex items-center space-x-2 <%= I18n.locale == :ur ? 'space-x-reverse' : '' %>">
+          <li>
+            <div class="text-gray-400">
+              <i data-feather="home" class="w-5 h-5"></i>
+            </div>
+          </li>
+          <li>
+            <div class="flex items-center">
+              <i data-feather="chevron-<%= I18n.locale == :ur ? 'left' : 'right' %>" class="w-5 h-5 text-gray-400"></i>
+              <span class="<%= I18n.locale == :ur ? 'mr-2' : 'ml-2' %> text-sm font-medium text-gray-500">
+                <%= yield :page_title if content_for?(:page_title) %>
+              </span>
+            </div>
+          </li>
+        </ol>
+      </nav>
+    </div>
+    
+    <!-- Right side -->
+    <div class="flex items-center space-x-4">
+      <!-- Language Toggle -->
+      <%= link_to "?locale=#{I18n.locale == :en ? 'ur' : 'en'}", 
+          class: "px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500" do %>
+        <%= I18n.locale == :en ? 'اردو' : 'EN' %>
+      <% end %>
+      
+      <!-- User menu -->
+      <div class="relative">
+        <button type="button" 
+                onclick="toggleUserDropdown()"
+                class="flex items-center p-2 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+          <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-2">
+            <span class="text-sm font-medium text-blue-600">
+              <%= current_user.name.first.upcase %>
+            </span>
+          </div>
+          <div class="hidden sm:block text-left">
+            <p class="text-sm font-medium text-gray-900">
+              <%= current_user.name %>
+            </p>
+            <p class="text-xs text-gray-500">
+              <%= current_user.email %>
+            </p>
+          </div>
+          <i data-feather="chevron-down" class="w-4 h-4 text-gray-500 ml-2"></i>
+        </button>
+        
+        <!-- User Dropdown menu -->
+        <div id="user-dropdown" class="hidden absolute right-0 z-10 mt-2 w-56 rounded-lg shadow-xl bg-white ring-1 ring-black ring-opacity-5 border border-gray-100">
+          <div class="py-2">
+            <div class="px-4 py-3 border-b border-gray-100">
+              <p class="text-sm font-semibold text-gray-900">
+                <%= current_user.name %>
+              </p>
+              <p class="text-sm text-gray-500">
+                <%= current_user.email %>
+              </p>
+            </div>
+            
+            <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+              <i data-feather="user" class="w-4 h-4 mr-3"></i>
+              Profile Settings
+            </a>
+            
+            <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+              <i data-feather="settings" class="w-4 h-4 mr-3"></i>
+              Account Settings
+            </a>
+            
+            <div class="border-t border-gray-100 my-1"></div>
+            
+            <%= link_to destroy_user_session_path,
+                method: :delete,
+                data: { 
+                  turbo_method: :delete,
+                  turbo_confirm: "Are you sure you want to log out?"
+                },
+                class: "flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors no-underline" do %>
+              <i data-feather="log-out" class="w-4 h-4 mr-3"></i>
+              Sign Out
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

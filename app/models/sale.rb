@@ -1,6 +1,7 @@
 class Sale < ApplicationRecord
   belongs_to :product
   belongs_to :user
+  belongs_to :bill, optional: true  # Optional because existing sales don't have bills
   
   validates :quantity, presence: true, numericality: { greater_than: 0 }
   validates :unit_price, :total_amount, presence: true, numericality: { greater_than: 0 }
@@ -13,7 +14,7 @@ class Sale < ApplicationRecord
   end
 
   def self.ransackable_associations(auth_object = nil)
-    ["product", "user"]
+    ["product", "user", "bill"]
   end
   
   private
