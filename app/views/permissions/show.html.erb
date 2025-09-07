@@ -1,0 +1,208 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="py-6">
+        <div class="md:flex md:items-center md:justify-between">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="h-12 w-12 rounded-full bg-<%= @user.role == 'business_admin' ? 'blue' : 'green' %>-100 flex items-center justify-center">
+                  <%= icon('fas', @user.role == 'business_admin' ? 'crown' : 'user', class: "h-6 w-6 text-#{@user.role == 'business_admin' ? 'blue' : 'green'}-600") %>
+                </div>
+              </div>
+              <div class="ml-4">
+                <h1 class="text-2xl font-bold leading-7 text-gray-900">
+                  <%= @user.name %>'s Permissions
+                </h1>
+                <div class="flex items-center mt-1 space-x-2">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= role_badge_class(@user.role) %>">
+                    <%= role_display_name(@user.role) %>
+                  </span>
+                  <span class="text-sm text-gray-500"><%= @user.email %></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 flex space-x-3 md:ml-4 md:mt-0">
+            <%= link_to permissions_path, class: "inline-flex items-center rounded-md bg-gray-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500" do %>
+              <%= icon('fas', 'arrow-left', class: 'mr-2') %>
+              Back to Permissions
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- User Info Card -->
+    <div class="bg-white overflow-hidden shadow rounded-lg mb-6">
+      <div class="px-4 py-5 sm:p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <h3 class="text-sm font-medium text-gray-500">Business</h3>
+            <p class="mt-1 text-sm text-gray-900">
+              <%= @user.business&.name || 'System Admin' %>
+            </p>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-gray-500">Shop Assignment</h3>
+            <p class="mt-1 text-sm text-gray-900">
+              <%= @user.shop&.name || 'All Shops' %>
+            </p>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-gray-500">Accessible Shops</h3>
+            <p class="mt-1 text-sm text-gray-900">
+              <%= @shops.count %> shops
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%= form_with url: permission_path(@user), method: :patch, local: true, class: "space-y-6" do |form| %>
+      
+      <!-- Global Permissions -->
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 mb-6 flex items-center">
+            <%= icon('fas', 'globe', class: 'mr-2 text-blue-500') %>
+            Global Permissions
+            <span class="ml-2 text-sm text-gray-500">(applies to all shops)</span>
+          </h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <% @permissions_by_category.each do |category, permissions| %>
+              <div class="border border-gray-200 rounded-lg overflow-hidden">
+                <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                  <h4 class="text-sm font-medium text-gray-900 flex items-center">
+                    <%= icon('fas', category_icon(category), class: 'mr-2 text-gray-600') %>
+                    <%= category.humanize.titleize %>
+                  </h4>
+                </div>
+                
+                <div class="p-4 space-y-3">
+                  <% permissions.each do |permission| %>
+                    <% user_has_global = @user_permissions[nil]&.any? { |up| up.permission_id == permission.id && up.granted? } %>
+                    <div class="flex items-start">
+                      <div class="flex items-center h-5">
+                        <%= form.check_box permission_field_name(permission).to_sym, 
+                            { checked: user_has_global, class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" }, 
+                            "1", "0" %>
+                      </div>
+                      <div class="ml-3 text-sm">
+                        <label class="font-medium text-gray-700">
+                          <%= permission.display_name %>
+                        </label>
+                        <p class="text-gray-500 text-xs mt-1">
+                          <%= permission.full_description %>
+                        </p>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shop-specific Permissions -->
+      <% if @shops.present? && @user.worker? %>
+        <div class="space-y-6">
+          <% @shops.each do |shop| %>
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+              <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 mb-6 flex items-center">
+                  <%= icon('fas', 'store', class: 'mr-2 text-green-500') %>
+                  <%= shop.name %> Permissions
+                  <span class="ml-2 text-sm text-gray-500">(shop-specific)</span>
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <% @permissions_by_category.each do |category, permissions| %>
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                      <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                        <h4 class="text-sm font-medium text-gray-900 flex items-center">
+                          <%= icon('fas', category_icon(category), class: 'mr-2 text-gray-600') %>
+                          <%= category.humanize.titleize %>
+                        </h4>
+                      </div>
+                      
+                      <div class="p-4 space-y-3">
+                        <% permissions.each do |permission| %>
+                          <% user_has_shop_perm = @user_permissions[shop.id]&.any? { |up| up.permission_id == permission.id && up.granted? } %>
+                          <div class="flex items-start">
+                            <div class="flex items-center h-5">
+                              <%= form.check_box permission_field_name(permission, shop).to_sym, 
+                                  { checked: user_has_shop_perm, class: "h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded" }, 
+                                  "1", "0" %>
+                            </div>
+                            <div class="ml-3 text-sm">
+                              <label class="font-medium text-gray-700">
+                                <%= permission.display_name %>
+                              </label>
+                              <p class="text-gray-500 text-xs mt-1">
+                                <%= permission.full_description %>
+                              </p>
+                            </div>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <!-- Submit Button -->
+      <div class="flex justify-end space-x-3">
+        <%= link_to permissions_path, class: "bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors" do %>
+          Cancel
+        <% end %>
+        <%= form.submit "Update Permissions", class: "bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow-sm transition-colors" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add visual feedback for permission changes
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    
+    checkboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+        const label = this.closest('.flex').querySelector('label');
+        if (this.checked) {
+          label.classList.add('text-green-700');
+          label.classList.remove('text-gray-700');
+        } else {
+          label.classList.add('text-gray-700');
+          label.classList.remove('text-green-700');
+        }
+      });
+    });
+    
+    // Group selection functionality
+    const categoryHeaders = document.querySelectorAll('[data-category-header]');
+    categoryHeaders.forEach(header => {
+      header.addEventListener('click', function() {
+        const category = this.dataset.category;
+        const checkboxes = document.querySelectorAll(`[data-category="${category}"] input[type="checkbox"]`);
+        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+        
+        checkboxes.forEach(cb => {
+          cb.checked = !allChecked;
+          cb.dispatchEvent(new Event('change'));
+        });
+      });
+    });
+  });
+</script>

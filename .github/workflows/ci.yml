@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   pull_request:
@@ -66,12 +66,6 @@ jobs:
           - 5432:5432
         options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
 
-      # redis:
-      #   image: redis
-      #   ports:
-      #     - 6379:6379
-      #   options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
-
     steps:
       - name: Install packages
         run: sudo apt-get update && sudo apt-get install --no-install-recommends -y build-essential git libpq-dev libyaml-dev pkg-config google-chrome-stable
@@ -89,7 +83,6 @@ jobs:
         env:
           RAILS_ENV: test
           DATABASE_URL: postgres://postgres:postgres@localhost:5432
-          # REDIS_URL: redis://localhost:6379/0
         run: bin/rails db:test:prepare test test:system
 
       - name: Keep screenshots from failed system tests
@@ -99,3 +92,24 @@ jobs:
           name: screenshots
           path: ${{ github.workspace }}/tmp/screenshots
           if-no-files-found: ignore
+
+  deploy:
+    needs: [scan_ruby, scan_js, lint, test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Deploy to Digital Ocean
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USER }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            cd /var/www/dukaan360
+            git pull origin main
+            bundle install --deployment --without development test
+            RAILS_ENV=production bundle exec rails assets:precompile
+            RAILS_ENV=production bundle exec rails db:migrate
+            sudo systemctl restart dukaan360
+            sudo systemctl restart nginx

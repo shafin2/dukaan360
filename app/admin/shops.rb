@@ -1,32 +1,33 @@
 ActiveAdmin.register Shop do
-  # See permitted parameters documentation:
-  # https://github.com/activeadmin/activeadmin/blob/master/docs/2-resource-customization.md#setting-up-strong-parameters
+  menu priority: 2
   
-  permit_params :name, :address, settings: {}
+  permit_params :name, :address, :business_id, settings: {}
   
   index do
     selectable_column
     id_column
     column :name
+    column :business
     column :address
     column :users_count do |shop|
       shop.users.count
     end
-    column :products_count do |shop|
-      shop.products.count
+    column "Inventory Items" do |shop|
+      shop.shop_inventories.count
     end
     column :created_at
     actions
   end
 
   filter :name
+  filter :business
   filter :created_at
 
   form do |f|
-    f.inputs do
+    f.inputs "Shop Information" do
+      f.input :business, as: :select, collection: Business.active.collect{ |b| [b.name, b.id] }, include_blank: "Select Business"
       f.input :name
       f.input :address, as: :text
-      f.input :settings, as: :jsonb
     end
     f.actions
   end
@@ -34,6 +35,7 @@ ActiveAdmin.register Shop do
   show do
     attributes_table do
       row :name
+      row :business
       row :address
       row :settings do |shop|
         shop.settings.present? ? JSON.pretty_generate(shop.settings) : "No settings"
@@ -42,7 +44,7 @@ ActiveAdmin.register Shop do
       row :updated_at
     end
 
-    panel "Users" do
+    panel "Users (#{shop.users.count})" do
       table_for shop.users do
         column :name
         column :email
@@ -51,13 +53,11 @@ ActiveAdmin.register Shop do
       end
     end
 
-    panel "Products" do
-      table_for shop.products.limit(10) do
-        column :name
-        column :category
+    panel "Inventory (#{shop.shop_inventories.count})" do
+      table_for shop.shop_inventories.includes(:product).limit(10) do
+        column :product
         column :quantity
-        column :buying_price
-        column :selling_price
+        column :low_stock_threshold
         column :created_at
       end
     end

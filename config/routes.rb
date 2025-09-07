@@ -8,12 +8,53 @@ Rails.application.routes.draw do
   # Dashboard routes
   resources :dashboard, only: [:index]
   
-  # Inventory and Reports
-  resources :inventory, only: [:index]
-  resources :reports, only: [:index]
+  # Permission Management
+  resources :permissions, only: [:index, :show, :update]
+  
+  # Inventory Management
+  resources :inventory do
+    collection do
+      get :low_stock
+      get :stock_report
+      get :valuation_report
+      get :movement_history
+      get :export_csv
+    end
+    member do
+      get :edit
+      patch :update
+      post :restock
+      post :distribute
+    end
+  end
+  
+  # Stock Transfer Management
+  resources :stock_transfers do
+    member do
+      patch :approve
+      patch :reject  
+      patch :complete
+      patch :cancel
+    end
+    collection do
+      get :pending_approvals
+      patch :bulk_approve
+    end
+  end
   
   # Products routes
   resources :products
+  
+  # User Management (for business admins)
+  resources :users do
+    member do
+      patch :assign_shop
+      patch :reset_password
+    end
+  end
+  
+  # Reports routes
+  resources :reports, only: [:index]
   
   # Sales routes
   resources :sales, only: [:index, :new, :create, :show]

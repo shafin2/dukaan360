@@ -1,14 +1,14 @@
 ActiveAdmin.register User do
-  # See permitted parameters documentation:
-  # https://github.com/activeadmin/activeadmin/blob/master/docs/2-resource-customization.md#setting-up-strong-parameters
+  menu priority: 3
   
-  permit_params :name, :email, :password, :password_confirmation, :role, :shop_id
+  permit_params :name, :email, :password, :password_confirmation, :role, :shop_id, :business_id
   
   index do
     selectable_column
     id_column
     column :name
     column :email
+    column :business
     column :shop
     column :role
     column :created_at
@@ -17,17 +17,19 @@ ActiveAdmin.register User do
 
   filter :name
   filter :email
+  filter :business
   filter :shop
   filter :role, as: :select, collection: User.roles
   filter :created_at
 
   form do |f|
-    f.inputs do
+    f.inputs "User Information" do
       f.input :name
       f.input :email
-      f.input :shop, as: :select, collection: Shop.all.collect{ |s| [s.name, s.id] }
       f.input :role, as: :select, collection: User.roles.keys.map{ |role| [role.humanize, role] }
-      f.input :password
+      f.input :business, as: :select, collection: Business.active.collect{ |b| [b.name, b.id] }, include_blank: "Select Business (Required for business_admin and worker)"
+      f.input :shop, as: :select, collection: Shop.joins(:business).where(businesses: { active: true }).collect{ |s| ["#{s.business.name} - #{s.name}", s.id] }, include_blank: "Select Shop (Required for workers only)"
+      f.input :password, hint: "Leave blank to keep current password"
       f.input :password_confirmation
     end
     f.actions
@@ -37,6 +39,7 @@ ActiveAdmin.register User do
     attributes_table do
       row :name
       row :email
+      row :business
       row :shop
       row :role
       row :created_at

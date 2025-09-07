@@ -1,0 +1,102 @@
+<% content_for :title, "Add Stock" %>
+
+<div class="min-h-screen bg-gray-50">
+  <!-- Header Section -->
+  <div class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Add Stock</h1>
+          <p class="mt-2 text-gray-600">Add inventory for existing products to your shops</p>
+        </div>
+        
+        <%= link_to inventory_index_path, 
+            class: "inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors" do %>
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to Inventory
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Section -->
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white rounded-xl shadow-lg border border-gray-200">
+      <div class="px-6 py-8">
+        <%= form_with(model: @shop_inventory, local: true, class: "space-y-6") do |form| %>
+          <% if @shop_inventory.errors.any? %>
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-red-800">There were some errors with your submission:</h3>
+                  <div class="mt-2 text-sm text-red-700">
+                    <ul class="list-disc list-inside space-y-1">
+                      <% @shop_inventory.errors.full_messages.each do |message| %>
+                        <li><%= message %></li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Product Selection -->
+          <div>
+            <%= form.label :product_id, "Product", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.select :product_id, 
+                options_from_collection_for_select(@products, :id, :name, @shop_inventory.product_id),
+                { prompt: "Select a product" },
+                { class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" } %>
+          </div>
+
+          <!-- Shop Selection -->
+          <div>
+            <%= form.label :shop_id, "Shop", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.select :shop_id, 
+                options_from_collection_for_select(@shops, :id, :name, @shop_inventory.shop_id),
+                { prompt: "Select a shop" },
+                { class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" } %>
+          </div>
+
+          <!-- Quantity -->
+          <div>
+            <%= form.label :quantity, "Quantity", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.number_field :quantity, 
+                min: 1,
+                placeholder: "Enter quantity to add",
+                class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+          </div>
+
+          <!-- Low Stock Threshold -->
+          <div>
+            <%= form.label :low_stock_threshold, "Low Stock Threshold", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.number_field :low_stock_threshold, 
+                min: 0,
+                placeholder: "Alert when stock falls below this level",
+                class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+            <p class="mt-1 text-sm text-gray-500">You'll get notified when stock falls below this level</p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex justify-end space-x-4 pt-6">
+            <%= link_to inventory_index_path, 
+                class: "px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-colors" do %>
+              Cancel
+            <% end %>
+            
+            <%= form.submit "Add Stock", 
+                class: "px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

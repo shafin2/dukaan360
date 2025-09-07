@@ -1,0 +1,165 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="py-6">
+        <div class="md:flex md:items-center md:justify-between">
+          <div class="min-w-0 flex-1">
+            <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl">
+              <%= icon('fas', 'user-shield', class: 'inline mr-3 text-blue-600') %>
+              Permission Management
+            </h1>
+            <p class="mt-1 text-sm text-gray-500">
+              Manage user permissions and access controls for your business
+            </p>
+          </div>
+          <div class="mt-4 flex md:ml-4 md:mt-0">
+            <%= link_to dashboard_index_path, class: "inline-flex items-center rounded-md bg-gray-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500" do %>
+              <%= icon('fas', 'arrow-left', class: 'mr-2') %>
+              Back to Dashboard
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      
+      <!-- Users List -->
+      <div class="lg:col-span-1">
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+              <%= icon('fas', 'users', class: 'inline mr-2 text-blue-500') %>
+              Users
+            </h3>
+            
+            <div class="space-y-3">
+              <% @users.each do |user| %>
+                <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center space-x-3">
+                      <div class="flex-shrink-0">
+                        <div class="h-8 w-8 rounded-full bg-<%= user.role == 'business_admin' ? 'blue' : 'green' %>-100 flex items-center justify-center">
+                          <%= icon('fas', user.role == 'business_admin' ? 'crown' : 'user', class: "h-4 w-4 text-#{user.role == 'business_admin' ? 'blue' : 'green'}-600") %>
+                        </div>
+                      </div>
+                      <div class="min-w-0 flex-1">
+                        <p class="text-sm font-medium text-gray-900 truncate">
+                          <%= user.name %>
+                        </p>
+                        <p class="text-xs text-gray-500 truncate">
+                          <%= user.email %>
+                        </p>
+                        <div class="flex items-center mt-1">
+                          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium <%= role_badge_class(user.role) %>">
+                            <%= role_display_name(user.role) %>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex-shrink-0 ml-4">
+                    <%= link_to permission_path(user), class: "inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200 transition-colors" do %>
+                      <%= icon('fas', 'cog', class: 'mr-1') %>
+                      Manage
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+            
+            <% if @users.empty? %>
+              <div class="text-center py-8">
+                <%= icon('fas', 'users-slash', class: 'mx-auto h-12 w-12 text-gray-400 mb-4') %>
+                <h3 class="text-sm font-medium text-gray-900">No users found</h3>
+                <p class="text-sm text-gray-500">
+                  No users are available for permission management.
+                </p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Permissions Overview -->
+      <div class="lg:col-span-3">
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-6">
+              <%= icon('fas', 'shield-alt', class: 'inline mr-2 text-green-500') %>
+              Available Permissions
+            </h3>
+            
+            <div class="space-y-6">
+              <% @permissions_by_category.each do |category, permissions| %>
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                  <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                    <h4 class="text-sm font-medium text-gray-900 flex items-center">
+                      <%= icon('fas', category_icon(category), class: 'mr-2 text-gray-600') %>
+                      <%= category.humanize.titleize %>
+                      <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        <%= permissions.count %> permissions
+                      </span>
+                    </h4>
+                  </div>
+                  
+                  <div class="divide-y divide-gray-200">
+                    <% permissions.each do |permission| %>
+                      <div class="px-4 py-3">
+                        <div class="flex items-start justify-between">
+                          <div class="flex-1">
+                            <div class="flex items-center">
+                              <h5 class="text-sm font-medium text-gray-900">
+                                <%= permission.display_name %>
+                              </h5>
+                              <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium <%= permission_badge_color(permission.category) %>">
+                                <%= permission.category.humanize %>
+                              </span>
+                            </div>
+                            <p class="mt-1 text-xs text-gray-500">
+                              <%= permission.full_description %>
+                            </p>
+                            <div class="mt-2 text-xs text-gray-400">
+                              Resource: <code class="bg-gray-100 px-1 py-0.5 rounded"><%= permission.resource %></code>
+                              Action: <code class="bg-gray-100 px-1 py-0.5 rounded"><%= permission.action %></code>
+                            </div>
+                          </div>
+                          <div class="ml-4 flex-shrink-0">
+                            <span class="text-xs text-gray-500">
+                              <%= pluralize(permission.users.count, 'user') %> assigned
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Add smooth scrolling and hover effects
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add click handlers for smooth interactions
+    const userCards = document.querySelectorAll('[data-user-card]');
+    userCards.forEach(card => {
+      card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-2px)';
+        this.style.transition = 'transform 0.2s ease-in-out';
+      });
+      
+      card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+      });
+    });
+  });
+</script>

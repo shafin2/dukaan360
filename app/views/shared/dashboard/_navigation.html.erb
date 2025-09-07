@@ -48,6 +48,34 @@
     Inventory
   <% end %>
   
+  <%= link_to stock_transfers_path, 
+      class: "group flex items-center px-3 py-3 text-sm font-medium #{'text-blue-600 bg-gradient-to-r from-blue-50 to-indigo-50 border-r-2 border-blue-500' if params[:controller] == 'stock_transfers'} #{'text-gray-600 hover:text-gray-900 hover:bg-gray-50' unless params[:controller] == 'stock_transfers'} rounded-lg transition-all duration-200 no-underline" do %>
+    <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 #{'bg-blue-100' if params[:controller] == 'stock_transfers'} #{'bg-gray-100 group-hover:bg-gray-200' unless params[:controller] == 'stock_transfers'} transition-colors">
+      <i data-feather="truck" class="w-4 h-4"></i>
+    </div>
+    Stock Transfers
+  <% end %>
+  
+  <% if current_user.business_admin? %>
+    <%= link_to users_path, 
+        class: "group flex items-center px-3 py-3 text-sm font-medium #{'text-blue-600 bg-gradient-to-r from-blue-50 to-indigo-50 border-r-2 border-blue-500' if params[:controller] == 'users'} #{'text-gray-600 hover:text-gray-900 hover:bg-gray-50' unless params[:controller] == 'users'} rounded-lg transition-all duration-200 no-underline" do %>
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 #{'bg-blue-100' if params[:controller] == 'users'} #{'bg-gray-100 group-hover:bg-gray-200' unless params[:controller] == 'users'} transition-colors">
+        <i data-feather="user-plus" class="w-4 h-4"></i>
+      </div>
+      Manage Workers
+    <% end %>
+  <% end %>
+  
+  <% if current_user.super_admin? %>
+    <%= link_to admin_root_path, 
+        class: "group flex items-center px-3 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 no-underline" do %>
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 bg-gray-100 group-hover:bg-gray-200 transition-colors">
+        <i data-feather="settings" class="w-4 h-4"></i>
+      </div>
+      System Admin
+    <% end %>
+  <% end %>
+  
   <%= link_to reports_path, 
       class: "group flex items-center px-3 py-3 text-sm font-medium #{'text-blue-600 bg-gradient-to-r from-blue-50 to-indigo-50 border-r-2 border-blue-500' if params[:controller] == 'reports'} #{'text-gray-600 hover:text-gray-900 hover:bg-gray-50' unless params[:controller] == 'reports'} rounded-lg transition-all duration-200 no-underline" do %>
     <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 #{'bg-blue-100' if params[:controller] == 'reports'} #{'bg-gray-100 group-hover:bg-gray-200' unless params[:controller] == 'reports'} transition-colors">

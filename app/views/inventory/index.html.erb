@@ -1,381 +1,315 @@
-<% content_for :page_title, 'Inventory Management' %>
+<% content_for :title, "Inventory Management" %>
 
-<div class="p-6 max-w-7xl mx-auto space-y-6">
+<div class="min-h-screen bg-gray-50">
   <!-- Header Section -->
-  <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-    <div class="bg-gradient-to-r from-orange-600 to-amber-600 px-8 py-6">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+  <div class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex justify-between items-start">
         <div>
-          <h1 class="text-3xl font-bold text-white mb-2">📦 Inventory Management</h1>
-          <p class="text-orange-100">Monitor stock levels, expiry dates, and inventory movements</p>
+          <h1 class="text-3xl font-bold text-gray-900">Inventory Management</h1>
+          <% if current_user.business_admin? %>
+            <p class="mt-2 text-gray-600">Manage inventory across all shops in your business</p>
+          <% else %>
+            <p class="mt-2 text-gray-600">Manage inventory for <%= current_user.shop.name %></p>
+          <% end %>
         </div>
-        <div class="mt-4 sm:mt-0 flex items-center space-x-3">
-          <%= link_to new_product_path,
-              class: "inline-flex items-center px-4 py-2 bg-white text-orange-600 text-sm font-semibold rounded-xl hover:bg-orange-50 transition-all duration-200 shadow-lg no-underline" do %>
-            <i data-feather="plus" class="w-4 h-4 mr-2"></i>
+        
+        <div class="flex space-x-3">
+          <%= link_to new_inventory_path, 
+              class: "inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors" do %>
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M9 9l3-3 3 3" />
+            </svg>
+            Add Stock
+          <% end %>
+          
+          <%= link_to new_product_path, 
+              class: "inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors" do %>
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
             Add Product
           <% end %>
-          <%= link_to products_path,
-              class: "inline-flex items-center px-4 py-2 bg-white text-orange-600 text-sm font-semibold rounded-xl hover:bg-orange-50 transition-all duration-200 shadow-lg no-underline" do %>
-            <i data-feather="package" class="w-4 h-4 mr-2"></i>
-            Manage Products
+          
+          <%= link_to low_stock_inventory_index_path, 
+              class: "inline-flex items-center px-4 py-2 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 rounded-lg font-medium transition-colors" do %>
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            Low Stock Alerts
+            <% if @low_stock_count > 0 %>
+              <span class="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full"><%= @low_stock_count %></span>
+            <% end %>
+          <% end %>
+          
+          <%= link_to stock_report_inventory_index_path, 
+              class: "inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors" do %>
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 00-2-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H9z" />
+            </svg>
+            Stock Report
+          <% end %>
+          
+          <% if current_user.business_admin? %>
+            <%= link_to valuation_report_inventory_index_path, 
+                class: "inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors" do %>
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+              </svg>
+              Valuation
+            <% end %>
           <% end %>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Summary Cards -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    <!-- Total Products -->
-    <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-      <div class="p-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-600 mb-1">Total Products</p>
-            <p class="text-2xl font-bold text-gray-900"><%= @total_products %></p>
-            <p class="text-xs text-gray-500 mt-1"><%= @categories_count %> categories</p>
-          </div>
-          <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-            <i data-feather="package" class="w-6 h-6 text-white"></i>
-          </div>
+  <!-- Filter Section -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+      <%= form_with url: inventory_index_path, method: :get, local: true, class: "flex flex-wrap gap-4 items-end" do |form| %>
+        <div class="flex-1 min-w-64">
+          <%= form.text_field :search, 
+              value: params[:search], 
+              placeholder: "Search products...", 
+              class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
         </div>
-      </div>
-    </div>
-
-    <!-- Low Stock Products -->
-    <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-      <div class="p-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-600 mb-1">Low Stock Alerts</p>
-            <p class="text-2xl font-bold text-orange-600"><%= @low_stock_products.count %></p>
-            <p class="text-xs text-gray-500 mt-1">Need restocking</p>
-          </div>
-          <div class="w-12 h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
-            <i data-feather="alert-triangle" class="w-6 h-6 text-white"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Out of Stock -->
-    <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-      <div class="p-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-600 mb-1">Out of Stock</p>
-            <p class="text-2xl font-bold text-red-600"><%= @out_of_stock_products.count %></p>
-            <p class="text-xs text-gray-500 mt-1">Urgent restocking</p>
-          </div>
-          <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center">
-            <i data-feather="x-circle" class="w-6 h-6 text-white"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Inventory Value -->
-    <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-      <div class="p-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-600 mb-1">Inventory Value</p>
-            <p class="text-2xl font-bold text-green-600">PKR <%= number_with_delimiter(@total_inventory_value.to_i) %></p>
-            <p class="text-xs text-gray-500 mt-1">Profit potential: PKR <%= number_with_delimiter(@total_profit_potential.to_i) %></p>
-          </div>
-          <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center">
-            <i data-feather="dollar-sign" class="w-6 h-6 text-white"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <!-- Stock Alerts -->
-    <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-red-50 to-orange-50">
-        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-          <i data-feather="alert-circle" class="w-5 h-5 mr-2 text-red-500"></i>
-          Stock Alerts
-        </h3>
-      </div>
-      <div class="px-6 py-6 max-h-80 overflow-y-auto">
-        <% if @out_of_stock_products.any? %>
-          <div class="space-y-3 mb-6">
-            <h4 class="text-sm font-semibold text-red-600 uppercase tracking-wide flex items-center">
-              <i data-feather="x-circle" class="w-4 h-4 mr-2"></i>
-              Out of Stock (<%= @out_of_stock_products.count %>)
-            </h4>
-            <% @out_of_stock_products.first(5).each do |product| %>
-              <div class="flex items-center justify-between p-4 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-colors">
-                <div class="flex-1">
-                  <p class="font-semibold text-red-900"><%= product.name %></p>
-                  <p class="text-sm text-red-700">Category: <%= product.category.presence || "Uncategorized" %></p>
-                  <p class="text-xs text-red-600 mt-1">Last selling price: PKR <%= product.selling_price %></p>
-                </div>
-                <div class="text-right">
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
-                    0 units
-                  </span>
-                  <%= link_to edit_product_path(product), 
-                      class: "inline-flex items-center mt-2 px-2 py-1 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors no-underline" do %>
-                    <i data-feather="edit-3" class="w-3 h-3 mr-1"></i>
-                    Restock
-                  <% end %>
-                </div>
-              </div>
-            <% end %>
+        
+        <% if current_user.business_admin? %>
+          <div class="min-w-48">
+            <%= form.select :shop_id, 
+                options_from_collection_for_select(current_user.business.shops, :id, :name, params[:shop_id]), 
+                { prompt: "All Shops" }, 
+                { class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" } %>
           </div>
         <% end %>
-
-        <% if @low_stock_products.any? %>
-          <div class="space-y-3 mb-6">
-            <h4 class="text-sm font-semibold text-orange-600 uppercase tracking-wide flex items-center">
-              <i data-feather="alert-triangle" class="w-4 h-4 mr-2"></i>
-              Low Stock (<%= @low_stock_products.count %>)
-            </h4>
-            <% @low_stock_products.first(5).each do |product| %>
-              <div class="flex items-center justify-between p-4 bg-orange-50 border border-orange-200 rounded-xl hover:bg-orange-100 transition-colors">
-                <div class="flex-1">
-                  <p class="font-semibold text-orange-900"><%= product.name %></p>
-                  <p class="text-sm text-orange-700">Minimum: <%= product.minimum_stock_level %> units</p>
-                  <p class="text-xs text-orange-600 mt-1">Category: <%= product.category.presence || "Uncategorized" %></p>
-                </div>
-                <div class="text-right">
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800">
-                    <%= product.quantity %> units
-                  </span>
-                  <%= link_to edit_product_path(product), 
-                      class: "inline-flex items-center mt-2 px-2 py-1 text-xs bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors no-underline" do %>
-                    <i data-feather="edit-3" class="w-3 h-3 mr-1"></i>
-                    Restock
-                  <% end %>
-                </div>
-              </div>
-            <% end %>
-          </div>
-        <% end %>
-
-        <% if @out_of_stock_products.empty? && @low_stock_products.empty? %>
-          <div class="text-center py-8">
-            <i data-feather="check-circle" class="w-12 h-12 text-green-500 mx-auto mb-3"></i>
-            <h4 class="text-lg font-semibold text-gray-900 mb-2">All Good! 🎉</h4>
-            <p class="text-gray-600">All products have healthy stock levels</p>
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-    <!-- Expiry Alerts -->
-    <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-yellow-50 to-red-50">
-        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-          <i data-feather="clock" class="w-5 h-5 mr-2 text-yellow-500"></i>
-          Expiry Alerts
-        </h3>
-      </div>
-      <div class="px-6 py-6 max-h-80 overflow-y-auto">
-        <% if @expired_products.any? %>
-          <div class="space-y-3 mb-6">
-            <h4 class="text-sm font-semibold text-red-600 uppercase tracking-wide flex items-center">
-              <i data-feather="x-octagon" class="w-4 h-4 mr-2"></i>
-              Expired (<%= @expired_products.count %>)
-            </h4>
-            <% @expired_products.each do |product| %>
-              <div class="flex items-center justify-between p-4 bg-red-50 border border-red-200 rounded-xl">
-                <div class="flex-1">
-                  <p class="font-semibold text-red-900"><%= product.name %></p>
-                  <p class="text-sm text-red-700">Expired: <%= product.expiry_date.strftime("%b %d, %Y") %></p>
-                  <p class="text-xs text-red-600">Stock: <%= product.quantity %> units</p>
-                </div>
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
-                  EXPIRED
-                </span>
-              </div>
-            <% end %>
-          </div>
-        <% end %>
-
-        <% if @expiring_products.any? %>
-          <div class="space-y-3">
-            <h4 class="text-sm font-semibold text-yellow-600 uppercase tracking-wide flex items-center">
-              <i data-feather="clock" class="w-4 h-4 mr-2"></i>
-              Expiring Soon (<%= @expiring_products.count %>)
-            </h4>
-            <% @expiring_products.each do |product| %>
-              <div class="flex items-center justify-between p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
-                <div class="flex-1">
-                  <p class="font-semibold text-yellow-900"><%= product.name %></p>
-                  <p class="text-sm text-yellow-700">Expires: <%= product.expiry_date.strftime("%b %d, %Y") %></p>
-                  <p class="text-xs text-yellow-600"><%= product.days_to_expiry %> days remaining</p>
-                </div>
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold <%= product.expiry_color_class %>">
-                  <%= product.expiry_status.upcase %>
-                </span>
-              </div>
-            <% end %>
-          </div>
-        <% end %>
-
-        <% if @expired_products.empty? && @expiring_products.empty? %>
-          <div class="text-center py-8">
-            <i data-feather="shield-check" class="w-12 h-12 text-green-500 mx-auto mb-3"></i>
-            <h4 class="text-lg font-semibold text-gray-900 mb-2">Fresh Inventory! 🌱</h4>
-            <p class="text-gray-600">No products expiring soon</p>
-          </div>
-        <% end %>
-      </div>
-    </div>
-  </div>
-
-  <!-- Recent Stock Movements -->
-  <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-    <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
-      <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-        <i data-feather="activity" class="w-5 h-5 mr-2 text-blue-500"></i>
-        Recent Stock Movements
-      </h3>
-    </div>
-    <div class="px-6 py-6">
-      <% if @recent_sales.any? %>
-        <div class="overflow-x-auto">
-          <table class="min-w-full">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Quantity</th>
-                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Amount</th>
-                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Type</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-              <% @recent_sales.each do |sale| %>
-                <tr class="hover:bg-gray-50">
-                  <td class="px-4 py-4">
-                    <div class="font-medium text-gray-900"><%= sale.product.name %></div>
-                    <div class="text-sm text-gray-500"><%= sale.product.category.presence || "Uncategorized" %></div>
-                  </td>
-                  <td class="px-4 py-4 text-sm text-gray-600">
-                    <%= sale.created_at.strftime("%b %d, %Y") %><br>
-                    <span class="text-xs text-gray-500"><%= sale.created_at.strftime("%I:%M %p") %></span>
-                  </td>
-                  <td class="px-4 py-4 text-center">
-                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                      -<%= sale.quantity %>
-                    </span>
-                  </td>
-                  <td class="px-4 py-4 text-right font-medium text-gray-900">
-                    PKR <%= number_with_delimiter(sale.total_amount) %>
-                  </td>
-                  <td class="px-4 py-4 text-center">
-                    <% if sale.bill.present? %>
-                      <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full <%= sale.bill.cash_bill? ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800' %>">
-                        <%= sale.bill.cash_bill? ? 'Cash' : 'Credit' %>
-                      </span>
-                    <% else %>
-                      <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                        Direct
-                      </span>
-                    <% end %>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
+        
+        <div class="min-w-40">
+          <%= form.select :stock_status, 
+              options_for_select([
+                ['All Items', ''],
+                ['In Stock', 'in_stock'], 
+                ['Low Stock', 'low_stock'], 
+                ['Out of Stock', 'out_of_stock']
+              ], params[:stock_status]), 
+              {}, 
+              { class: "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" } %>
         </div>
-      <% else %>
-        <div class="text-center py-12">
-          <i data-feather="box" class="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
-          <h4 class="text-lg font-semibold text-gray-900 mb-2">No Recent Movements</h4>
-          <p class="text-gray-600 mb-6">Stock movements will appear here as sales are made</p>
-          <%= link_to new_sale_path, 
-              class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors no-underline" do %>
-            <i data-feather="plus" class="w-4 h-4 mr-2"></i>
-            Record Sale
-          <% end %>
-        </div>
+        
+        <%= form.submit "Filter", 
+            class: "px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors cursor-pointer" %>
+            
+        <%= link_to inventory_index_path, 
+            class: "px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors" do %>
+          Clear
+        <% end %>
       <% end %>
     </div>
-  </div>
 
-  <!-- Products by Category -->
-  <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-    <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-indigo-50">
-      <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-        <i data-feather="grid" class="w-5 h-5 mr-2 text-purple-500"></i>
-        Inventory by Category
-      </h3>
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center">
+          <div class="p-2 bg-blue-100 rounded-lg">
+            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-500">Total Products</p>
+            <p class="text-2xl font-semibold text-gray-900"><%= @total_products %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center">
+          <div class="p-2 bg-green-100 rounded-lg">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 00-2-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H9z" />
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-500">Total Items</p>
+            <p class="text-2xl font-semibold text-gray-900"><%= @total_inventory_items %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center">
+          <div class="p-2 bg-purple-100 rounded-lg">
+            <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-500">Total Value</p>
+            <p class="text-2xl font-semibold text-gray-900">Rs<%= number_with_delimiter(@total_inventory_value.to_i) %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center">
+          <div class="p-2 bg-red-100 rounded-lg">
+            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-medium text-gray-500">Low Stock Items</p>
+            <p class="text-2xl font-semibold text-gray-900"><%= @low_stock_count %></p>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="px-6 py-6">
-      <% if @products_by_category.any? %>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <% @products_by_category.each do |category, products| %>
-            <div class="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
-              <div class="flex items-center justify-between mb-4">
-                <h4 class="font-semibold text-gray-900 text-lg">
-                  <%= category.presence || "Uncategorized" %>
-                </h4>
-                <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                  <%= products.count %> products
-                </span>
-              </div>
-              
-              <div class="space-y-3">
-                <% products.first(4).each do |product| %>
-                  <div class="flex justify-between items-center text-sm">
-                    <span class="text-gray-600 truncate flex-1 mr-2"><%= product.name %></span>
-                    <div class="flex items-center space-x-2">
-                      <span class="text-gray-900 font-medium"><%= product.quantity %></span>
-                      <span class="inline-flex items-center px-2 py-1 text-xs rounded-full <%= 
-                        case product.stock_status
-                        when 'out_of_stock' then 'bg-red-100 text-red-800'
-                        when 'low_stock' then 'bg-orange-100 text-orange-800'
-                        else 'bg-green-100 text-green-800'
-                        end %>">
-                        <%= product.stock_status.humanize %>
-                      </span>
-                    </div>
-                  </div>
-                <% end %>
-                <% if products.count > 4 %>
-                  <p class="text-xs text-gray-500 text-center pt-2 border-t border-gray-100">
-                    ... and <%= products.count - 4 %> more products
-                  </p>
-                <% end %>
-              </div>
-              
-              <div class="mt-4 pt-4 border-t border-gray-100">
-                <div class="text-sm text-gray-600">
-                  <div class="flex justify-between">
-                    <span>Total Value:</span>
-                    <span class="font-medium">PKR <%= number_with_delimiter(products.sum { |p| p.quantity * p.buying_price }.to_i) %></span>
-                  </div>
-                </div>
-              </div>
-            </div>
+
+    <!-- Inventory Table -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <h3 class="text-lg font-medium text-gray-900">Inventory Items</h3>
+        <div class="flex space-x-3">
+          <%= link_to export_csv_inventory_index_path(format: :csv), 
+              class: "inline-flex items-center px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors" do %>
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Export CSV
           <% end %>
         </div>
-      <% else %>
-        <div class="text-center py-12">
-          <i data-feather="package" class="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
-          <h4 class="text-lg font-semibold text-gray-900 mb-2">No Products Yet</h4>
-          <p class="text-gray-600 mb-6">Start building your inventory by adding products</p>
-          <%= link_to new_product_path, 
-              class: "inline-flex items-center px-6 py-3 bg-orange-600 text-white font-semibold rounded-xl hover:bg-orange-700 transition-colors no-underline" do %>
-            <i data-feather="plus" class="w-4 h-4 mr-2"></i>
-            Add Your First Product
-          <% end %>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+              <% if current_user.business_admin? %>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shop</th>
+              <% end %>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Min Stock</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Value</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Value</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @shop_inventories.each do |item| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10">
+                      <div class="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900"><%= item.product.name %></div>
+                      <div class="text-sm text-gray-500"><%= item.product.category %></div>
+                    </div>
+                  </div>
+                </td>
+                <% if current_user.business_admin? %>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <%= item.shop.name %>
+                    </span>
+                  </td>
+                <% end %>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
+                  <%= item.quantity %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= item.min_stock_level %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  Rs<%= number_with_delimiter(item.product.selling_price) %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
+                  Rs<%= number_with_delimiter((item.quantity * item.product.selling_price).to_i) %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if item.quantity == 0 %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                      Out of Stock
+                    </span>
+                  <% elsif item.quantity <= item.min_stock_level %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                      Low Stock
+                    </span>
+                  <% else %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      In Stock
+                    </span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <div class="flex items-center justify-end space-x-2">
+                    <%= link_to inventory_path(item), 
+                        class: "text-blue-600 hover:text-blue-900 font-medium" do %>
+                      View
+                    <% end %>
+                    
+                    <% if current_user.can?('edit_inventory') %>
+                      <%= link_to edit_inventory_path(item), 
+                          class: "text-indigo-600 hover:text-indigo-900 font-medium" do %>
+                        Edit
+                      <% end %>
+                    <% end %>
+                    
+                    <% if current_user.business_admin? %>
+                      <%= button_to restock_inventory_path(item), 
+                          method: :post,
+                          params: { quantity: 10 },
+                          class: "text-green-600 hover:text-green-900 font-medium bg-transparent border-0 p-0 cursor-pointer",
+                          form_class: "inline" do %>
+                        Quick Restock
+                      <% end %>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <% if @shop_inventories.respond_to?(:current_page) %>
+        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+          <div class="flex items-center justify-between">
+            <div class="flex-1 flex justify-between sm:hidden">
+              <%= will_paginate @shop_inventories, 
+                  previous_label: "Previous", 
+                  next_label: "Next",
+                  class: "relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p class="text-sm text-gray-700">
+                  Showing 
+                  <span class="font-medium"><%= (@shop_inventories.current_page - 1) * @shop_inventories.per_page + 1 %></span>
+                  to 
+                  <span class="font-medium"><%= [@shop_inventories.current_page * @shop_inventories.per_page, @shop_inventories.total_entries].min %></span>
+                  of 
+                  <span class="font-medium"><%= @shop_inventories.total_entries %></span>
+                  results
+                </p>
+              </div>
+              <div>
+                <%= will_paginate @shop_inventories, 
+                    renderer: 'WillPaginate::ActionView::BootstrapLinkRenderer',
+                    class: "relative z-0 inline-flex rounded-md shadow-sm -space-x-px" %>
+              </div>
+            </div>
+          </div>
         </div>
       <% end %>
     </div>
   </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  feather.replace();
-});
-</script>

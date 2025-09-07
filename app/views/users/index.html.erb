@@ -1,0 +1,183 @@
+<% content_for :title, 'Manage Workers' %>
+
+<div class="max-w-7xl mx-auto">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Manage Workers</h1>
+      <p class="text-gray-600">Add and manage workers for <%= current_user.business.name %></p>
+    </div>
+    <%= link_to new_user_path, 
+        class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2" do %>
+      <i data-feather="user-plus" class="w-4 h-4"></i>
+      Add New Worker
+    <% end %>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div class="bg-white p-6 rounded-lg border border-gray-200">
+      <div class="flex items-center">
+        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+          <i data-feather="users" class="w-6 h-6 text-blue-600"></i>
+        </div>
+        <div>
+          <p class="text-sm text-gray-600">Total Workers</p>
+          <p class="text-2xl font-bold text-gray-900"><%= @users.count %></p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg border border-gray-200">
+      <div class="flex items-center">
+        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+          <i data-feather="check-circle" class="w-6 h-6 text-green-600"></i>
+        </div>
+        <div>
+          <p class="text-sm text-gray-600">Assigned Workers</p>
+          <p class="text-2xl font-bold text-gray-900"><%= @users.where.not(shop: nil).count %></p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg border border-gray-200">
+      <div class="flex items-center">
+        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
+          <i data-feather="alert-circle" class="w-6 h-6 text-orange-600"></i>
+        </div>
+        <div>
+          <p class="text-sm text-gray-600">Pending Assignment</p>
+          <p class="text-2xl font-bold text-gray-900"><%= @pending_users.count %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Workers List -->
+  <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-900">Workers List</h2>
+    </div>
+    
+    <% if @users.any? %>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Worker</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned Shop</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <% @users.each do |user| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                      <span class="text-blue-600 font-medium"><%= user.name&.first&.upcase || 'U' %></span>
+                    </div>
+                    <div>
+                      <div class="text-sm font-medium text-gray-900"><%= user.name || 'No Name' %></div>
+                      <div class="text-sm text-gray-500">Worker ID: #<%= user.id %></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900"><%= user.email %></td>
+                <td class="px-6 py-4 text-sm">
+                  <% if user.shop.present? %>
+                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                      <%= user.shop.name %>
+                    </span>
+                  <% else %>
+                    <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs font-medium">
+                      Not Assigned
+                    </span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900"><%= user.role.humanize %></td>
+                <td class="px-6 py-4">
+                  <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                    Active
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-right text-sm font-medium">
+                  <div class="flex items-center justify-end gap-2">
+                    <% if user.shop.blank? %>
+                      <div class="relative" data-dropdown>
+                        <button class="bg-blue-100 text-blue-800 px-3 py-1 rounded text-xs font-medium hover:bg-blue-200 transition-colors" data-dropdown-toggle>
+                          Assign Shop
+                        </button>
+                        <div class="hidden absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10" data-dropdown-menu>
+                          <% @shops.each do |shop| %>
+                            <%= link_to assign_shop_user_path(user, shop_id: shop.id), 
+                                method: :patch,
+                                class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 first:rounded-t-lg last:rounded-b-lg" do %>
+                              <%= shop.name %>
+                            <% end %>
+                          <% end %>
+                        </div>
+                      </div>
+                    <% end %>
+                    
+                    <%= link_to edit_user_path(user), 
+                        class: "text-blue-600 hover:text-blue-800 mr-2" do %>
+                      <i data-feather="edit" class="w-4 h-4"></i>
+                    <% end %>
+                    
+                    <%= link_to reset_password_user_path(user), 
+                        method: :patch,
+                        class: "text-orange-600 hover:text-orange-800 mr-2",
+                        confirm: "Reset password for #{user.name}? New password will be 'password123'" do %>
+                      <i data-feather="key" class="w-4 h-4"></i>
+                    <% end %>
+                    
+                    <%= link_to user_path(user), 
+                        method: :delete,
+                        class: "text-red-600 hover:text-red-800",
+                        confirm: "Are you sure you want to delete #{user.name}?" do %>
+                      <i data-feather="trash-2" class="w-4 h-4"></i>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="text-center py-12">
+        <i data-feather="users" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No workers yet</h3>
+        <p class="text-gray-500 mb-4">Get started by adding your first worker</p>
+        <%= link_to new_user_path, 
+            class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors inline-flex items-center gap-2" do %>
+          <i data-feather="user-plus" class="w-4 h-4"></i>
+          Add First Worker
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+// Simple dropdown functionality
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('[data-dropdown]').forEach(dropdown => {
+    const toggle = dropdown.querySelector('[data-dropdown-toggle]');
+    const menu = dropdown.querySelector('[data-dropdown-menu]');
+    
+    toggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      menu.classList.toggle('hidden');
+    });
+    
+    document.addEventListener('click', function() {
+      menu.classList.add('hidden');
+    });
+  });
+});
+</script>

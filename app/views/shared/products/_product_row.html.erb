@@ -30,7 +30,7 @@
       <div class="col-span-2">
         <div class="flex flex-col">
           <span class="text-lg font-bold text-gray-900 mb-1">
-            <%= product.quantity %> packs
+            <%= product.total_quantity_across_shops %> <%= product.unit || 'units' %>
           </span>
           <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-lg 
             <%= case product.stock_status
@@ -52,9 +52,9 @@
         <div class="flex flex-col">
           <span class="text-sm text-gray-500 uppercase tracking-wide">Buying</span>
           <span class="text-base font-bold text-gray-900">
-            PKR <%= number_with_delimiter(product.buying_price) %>
+            Rs <%= number_with_delimiter(product.buying_price) %>
           </span>
-          <span class="text-xs text-gray-500">per pack</span>
+          <span class="text-xs text-gray-500">per <%= product.unit || 'unit' %></span>
         </div>
       </div>
 
@@ -63,7 +63,7 @@
         <div class="flex flex-col">
           <span class="text-sm text-gray-500 uppercase tracking-wide">Selling</span>
           <span class="text-base font-bold text-green-600">
-            PKR <%= number_with_delimiter(product.selling_price) %>
+            Rs <%= number_with_delimiter(product.selling_price) %>
           </span>
           <span class="text-xs font-semibold px-2 py-1 rounded bg-green-100 text-green-700">
             +<%= product.profit_margin %>%

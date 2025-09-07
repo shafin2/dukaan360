@@ -11,11 +11,19 @@
       <% end %>
     </div>
     
-    <!-- Shop Info -->
+    <!-- Shop/Business Info -->
     <div class="px-6 pb-4 mb-4 border-b border-gray-100">
       <div class="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-4">
-        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1"><%= t('shop.name') %></div>
-        <div class="font-semibold text-gray-900 text-sm truncate"><%= current_user.shop.name %></div>
+        <% if current_user.business_admin? %>
+          <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Business</div>
+          <div class="font-semibold text-gray-900 text-sm truncate"><%= current_user.business&.name || 'Business Admin' %></div>
+        <% elsif current_user.shop.present? %>
+          <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1"><%= t('shop.name') %></div>
+          <div class="font-semibold text-gray-900 text-sm truncate"><%= current_user.shop.name %></div>
+        <% else %>
+          <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">User</div>
+          <div class="font-semibold text-gray-900 text-sm truncate">Dashboard</div>
+        <% end %>
         <div class="text-xs text-gray-500 mt-2 flex items-center">
           <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
           <%= current_user.role.humanize %> • <%= current_user.name %>
@@ -53,11 +61,19 @@
         <% end %>
       </div>
       
-      <!-- Shop Info -->
+      <!-- Shop/Business Info -->
       <div class="px-6 pb-4 mb-4 border-b border-gray-100">
         <div class="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-4">
-          <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1"><%= t('shop.name') %></div>
-          <div class="font-semibold text-gray-900 text-sm truncate"><%= current_user.shop.name %></div>
+          <% if current_user.business_admin? %>
+            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Business</div>
+            <div class="font-semibold text-gray-900 text-sm truncate"><%= current_user.business&.name || 'Business Admin' %></div>
+          <% elsif current_user.shop.present? %>
+            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1"><%= t('shop.name') %></div>
+            <div class="font-semibold text-gray-900 text-sm truncate"><%= current_user.shop.name %></div>
+          <% else %>
+            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">User</div>
+            <div class="font-semibold text-gray-900 text-sm truncate">Dashboard</div>
+          <% end %>
           <div class="text-xs text-gray-500 mt-2 flex items-center">
             <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
             <%= current_user.role.humanize %> • <%= current_user.name %>
