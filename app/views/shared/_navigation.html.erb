@@ -123,14 +123,12 @@
               <% end %>
             <% end %>
             
-            <% if current_user.super_admin? %>
-              <%= link_to '/admin', target: '_blank', class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
-                <%= icon('fas', 'tools', class: 'mr-2') %>
-                Admin Panel
-              <% end %>
-            <% end %>
-            
-            <%= link_to destroy_user_session_path, method: :delete, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
+            <%= link_to destroy_user_session_path, 
+                data: { 
+                  "turbo-method": "delete",
+                  "turbo-confirm": "Are you sure you want to log out?"
+                },
+                class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
               <%= icon('fas', 'sign-out-alt', class: 'mr-2') %>
               Sign Out
             <% end %>

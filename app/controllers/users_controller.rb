@@ -1,12 +1,12 @@
 class UsersController < ApplicationController
   before_action :authenticate_user!
-  before_action :ensure_business_admin
+  before_action :ensure_business_owner
   before_action :set_user, only: [:show, :edit, :update, :destroy]
   layout 'dashboard'
   
   def index
     @users = current_user.business.users
-                         .where.not(role: :business_admin)
+                         .where.not(role: :business_owner)
                          .includes(:shop)
                          .order(:name)
     @shops = current_user.business.shops
@@ -24,7 +24,7 @@ class UsersController < ApplicationController
   def create
     @user = current_user.business.users.build(user_params)
     @user.password = 'password123' # Default password
-    @user.role = :worker # Default role
+    @user.role = :shop_worker # Default role
     
     if @user.save
       redirect_to users_path, notice: 'Worker created successfully. Default password is "password123"'
@@ -84,9 +84,9 @@ class UsersController < ApplicationController
     params.require(:user).permit(:name, :email, :shop_id, :role)
   end
   
-  def ensure_business_admin
-    unless current_user.business_admin?
-      redirect_to dashboard_index_path, alert: 'Access denied. Only business admins can manage workers.'
+  def ensure_business_owner
+    unless current_user.business_owner?
+      redirect_to dashboard_index_path, alert: 'Access denied. Only business owners can manage workers.'
     end
   end
 end

@@ -59,16 +59,17 @@
         <p class="text-sm text-gray-500 mt-1">You can assign the worker to a shop now or later</p>
       </div>
 
-      <!-- Role -->
-      <div>
-        <%= form.label :role, class: "block text-sm font-medium text-gray-700 mb-2" %>
-        <%= form.select :role, 
-            options_for_select([
-              ['Worker', 'worker'],
-              ['Shop Manager', 'shop_manager']
-            ], @user.role),
-            {},
-            { class: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" } %>
+      <!-- Role (Hidden - Always Shop Worker) -->
+      <%= form.hidden_field :role, value: 'shop_worker' %>
+      
+      <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <div class="flex items-center">
+          <i data-feather="user" class="w-5 h-5 text-gray-600 mr-2"></i>
+          <div>
+            <h3 class="text-sm font-medium text-gray-800">Role: Shop Worker</h3>
+            <p class="text-sm text-gray-600">New workers are automatically assigned as shop workers</p>
+          </div>
+        </div>
       </div>
 
       <!-- Password Info -->

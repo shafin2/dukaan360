@@ -123,6 +123,16 @@
         <p class="mt-1 text-xs text-gray-500">How many packs did you buy?</p>
       </div>
 
+      <!-- Shop Assignment -->
+      <div>
+        <%= f.label :shop_id, "Assign to Shop", class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= f.select :shop_id,
+            options_from_collection_for_select(current_user.business.shops, :id, :name),
+            { prompt: "Select a shop to assign stock" },
+            { class: "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" } %>
+        <p class="mt-1 text-xs text-gray-500">Choose which shop will receive this initial stock</p>
+      </div>
+
       <!-- Expiry Date -->
       <div>
         <%= f.label :expiry_date, "Expiry Date *", class: "block text-sm font-medium text-gray-700 mb-2" %>

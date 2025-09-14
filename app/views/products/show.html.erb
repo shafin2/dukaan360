@@ -80,21 +80,39 @@
             <div class="space-y-3">
               <div>
                 <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
-                  Stock Quantity
+                  <% if current_user.business_owner? %>
+                    Business Inventory
+                  <% else %>
+                    Shop Stock
+                  <% end %>
                 </label>
+                <% 
+                  quantity = if current_user.shop_worker? && current_user.shop.present?
+                               @product.quantity_in_shop(current_user.shop)
+                             else
+                               @product.unassigned_inventory
+                             end
+                %>
                 <div class="flex items-center space-x-2">
-                  <span class="text-lg font-bold <%= @product.quantity <= 10 ? 'text-red-600' : @product.quantity <= 50 ? 'text-yellow-600' : 'text-green-600' %>">
-                    <%= @product.quantity %>
+                  <span class="text-lg font-bold <%= quantity <= 10 ? 'text-red-600' : quantity <= 50 ? 'text-yellow-600' : 'text-green-600' %>">
+                    <%= quantity %>
                   </span>
                   <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-lg 
                     <%= case
-                        when @product.quantity <= 0 then 'bg-red-100 text-red-800'
-                        when @product.quantity <= 10 then 'bg-orange-100 text-orange-800'
+                        when quantity <= 0 then 'bg-red-100 text-red-800'
+                        when quantity <= 10 then 'bg-orange-100 text-orange-800'
                         else 'bg-green-100 text-green-800'
                         end %>">
-                    <%= @product.quantity <= 0 ? 'Out of Stock' : @product.quantity <= 10 ? 'Low Stock' : 'In Stock' %>
+                    <%= quantity <= 0 ? 'Out of Stock' : quantity <= 10 ? 'Low Stock' : 'In Stock' %>
                   </span>
                 </div>
+                
+                <% if current_user.business_owner? %>
+                  <div class="mt-2 text-sm text-gray-600">
+                    <p>Total across shops: <%= @product.total_quantity_across_shops %> <%= @product.unit %></p>
+                    <p>Total business inventory: <%= @product.total_business_inventory %> <%= @product.unit %></p>
+                  </div>
+                <% end %>
               </div>
               
               <% if @product.expiry_date.present? %>
@@ -211,7 +229,14 @@
               Inventory Value
             </span>
             <span class="text-base font-semibold text-blue-600">
-              PKR <%= number_with_delimiter(@product.quantity * @product.buying_price) %>
+              <% 
+                inventory_value = if current_user.shop_worker? && current_user.shop.present?
+                                    @product.quantity_in_shop(current_user.shop) * @product.buying_price
+                                  else
+                                    @product.total_business_inventory * @product.buying_price
+                                  end
+              %>
+              PKR <%= number_with_delimiter(inventory_value) %>
             </span>
           </div>
         </div>

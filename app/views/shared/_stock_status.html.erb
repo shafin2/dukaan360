@@ -1,21 +1,26 @@
-<% if product.quantity <= 0 %>
-  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 <%= I18n.locale == :ur ? 'mr-2' : 'ml-2' %>">
-    <i data-feather="alert-triangle" class="h-3 w-3 <%= I18n.locale == :ur ? 'ml-1' : 'mr-1' %>"></i>
-    <%= t('products.status.out_of_stock') %>
+<% 
+  # Get quantity from shop inventory if user is a shop worker, otherwise show total business inventory
+  quantity = if current_user.shop_worker? && current_user.shop.present?
+               product.quantity_in_shop(current_user.shop)
+             else
+               product.total_business_inventory
+             end
+%>
+
+<% if quantity <= 0 %>
+  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+    Out of Stock
   </span>
-<% elsif product.quantity <= 10 %>
-  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 <%= I18n.locale == :ur ? 'mr-2' : 'ml-2' %>">
-    <i data-feather="alert-circle" class="h-3 w-3 <%= I18n.locale == :ur ? 'ml-1' : 'mr-1' %>"></i>
-    <%= t('products.status.low_stock') %>
+<% elsif quantity <= 10 %>
+  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+    Low Stock
   </span>
-<% elsif product.quantity <= 50 %>
-  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 <%= I18n.locale == :ur ? 'mr-2' : 'ml-2' %>">
-    <i data-feather="alert-triangle" class="h-3 w-3 <%= I18n.locale == :ur ? 'ml-1' : 'mr-1' %>"></i>
-    <%= t('products.status.medium_stock') %>
+<% elsif quantity <= 50 %>
+  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+    Medium Stock
   </span>
 <% else %>
-  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 <%= I18n.locale == :ur ? 'mr-2' : 'ml-2' %>">
-    <i data-feather="check-circle" class="h-3 w-3 <%= I18n.locale == :ur ? 'ml-1' : 'mr-1' %>"></i>
-    <%= t('products.status.good_stock') %>
+  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+    In Stock
   </span>
 <% end %>

@@ -10,16 +10,18 @@
             <%= t('products.title') %>
           </h1>
           <p class="text-indigo-100">
-            <%= t('products.subtitle') %>
+            <%= current_user.business_owner? ? "Manage all products in your business" : "View products available in #{current_user.shop.name}" %>
           </p>
         </div>
-        <div class="mt-4 sm:mt-0">
-          <%= link_to new_product_path,
-              class: "inline-flex items-center px-6 py-3 bg-white text-indigo-600 text-sm font-semibold rounded-xl hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600 transition-all duration-200 transform hover:scale-105 shadow-lg no-underline" do %>
-            <i data-feather="plus" class="w-4 h-4 mr-2"></i>
-            <%= t('products.actions.add_product') %>
-          <% end %>
-        </div>
+        <% if current_user.business_owner? %>
+          <div class="mt-4 sm:mt-0">
+            <%= link_to new_product_path,
+                class: "inline-flex items-center px-6 py-3 bg-white text-indigo-600 text-sm font-semibold rounded-xl hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600 transition-all duration-200 transform hover:scale-105 shadow-lg no-underline" do %>
+              <i data-feather="plus" class="w-4 h-4 mr-2"></i>
+              <%= t('products.actions.add_product') %>
+            <% end %>
+          </div>
+        <% end %>
       </div>
     </div>
   </div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_31_123355) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_13_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -149,8 +149,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_31_123355) do
     t.integer "max_stock_level", default: 100
     t.integer "reorder_point", default: 20
     t.string "unit", default: "piece", null: false
+    t.integer "business_inventory_quantity", default: 0, null: false
     t.index ["business_id", "category"], name: "index_products_on_business_id_and_category"
     t.index ["business_id"], name: "index_products_on_business_id"
+    t.index ["business_inventory_quantity"], name: "index_products_on_business_inventory_quantity"
     t.index ["category"], name: "index_products_on_category"
     t.index ["created_by_id"], name: "index_products_on_created_by_id"
     t.index ["expiry_date"], name: "index_products_on_expiry_date"

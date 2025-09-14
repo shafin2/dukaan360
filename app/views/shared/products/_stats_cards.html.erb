@@ -12,7 +12,7 @@
         <div class="<%= I18n.locale == :ur ? 'mr-4' : 'ml-4' %>">
           <p class="text-sm font-medium text-gray-600"><%= t('products.stats.total_products') %></p>
           <p class="text-2xl font-bold text-gray-900">
-            <% if current_user.business_admin? %>
+            <% if current_user.business_owner? %>
               <%= current_user.business.products.count %>
             <% elsif current_user.shop.present? %>
               <%= current_user.shop.shop_inventories.count %>
@@ -37,7 +37,7 @@
         <div class="<%= I18n.locale == :ur ? 'mr-4' : 'ml-4' %>">
           <p class="text-sm font-medium text-gray-600"><%= t('products.stats.low_stock') %></p>
           <p class="text-2xl font-bold text-gray-900">
-            <% if current_user.business_admin? %>
+            <% if current_user.business_owner? %>
               <%= current_user.business.shop_inventories.where('shop_inventories.quantity <= shop_inventories.min_stock_level').count %>
             <% elsif current_user.shop.present? %>
               <%= current_user.shop.shop_inventories.where('quantity <= min_stock_level').count %>
@@ -62,7 +62,7 @@
         <div class="<%= I18n.locale == :ur ? 'mr-4' : 'ml-4' %>">
           <p class="text-sm font-medium text-gray-600"><%= t('products.stats.out_of_stock') %></p>
           <p class="text-2xl font-bold text-gray-900">
-            <% if current_user.business_admin? %>
+            <% if current_user.business_owner? %>
               <%= current_user.business.shop_inventories.where(quantity: 0).count %>
             <% elsif current_user.shop.present? %>
               <%= current_user.shop.shop_inventories.where(quantity: 0).count %>
@@ -81,7 +81,7 @@
       <div class="flex items-center">
         <div class="flex-shrink-0">
           <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-            <% if current_user.business_admin? %>
+            <% if current_user.business_owner? %>
               <i data-feather="building" class="w-6 h-6 text-green-600"></i>
             <% else %>
               <i data-feather="dollar-sign" class="w-6 h-6 text-green-600"></i>
@@ -89,7 +89,7 @@
           </div>
         </div>
         <div class="<%= I18n.locale == :ur ? 'mr-4' : 'ml-4' %>">
-          <% if current_user.business_admin? %>
+          <% if current_user.business_owner? %>
             <p class="text-sm font-medium text-gray-600">Total Shops</p>
             <p class="text-2xl font-bold text-gray-900"><%= current_user.business.shops.count %></p>
           <% elsif current_user.shop.present? %>

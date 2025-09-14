@@ -49,6 +49,50 @@ class Product < ApplicationRecord
     shop_inventories.sum(:quantity)
   end
   
+  def total_business_inventory
+    (business_inventory_quantity || 0) + total_quantity_across_shops
+  end
+  
+  def unassigned_inventory
+    business_inventory_quantity || 0
+  end
+  
+  def assigned_inventory
+    total_quantity_across_shops
+  end
+  
+  def can_assign_to_shop?(quantity)
+    unassigned_inventory >= quantity
+  end
+  
+  def assign_to_shop(shop, quantity, user = nil)
+    return false unless can_assign_to_shop?(quantity)
+    
+    ActiveRecord::Base.transaction do
+      # Reduce business inventory
+      self.update!(business_inventory_quantity: business_inventory_quantity - quantity)
+      
+      # Add to shop inventory
+      shop_inventory = shop_inventories.find_or_initialize_by(shop: shop, business: business)
+      if shop_inventory.persisted?
+        shop_inventory.update!(quantity: shop_inventory.quantity + quantity)
+      else
+        shop_inventory.assign_attributes(
+          quantity: quantity,
+          min_stock_level: min_stock_level,
+          max_stock_level: max_stock_level,
+          reorder_point: reorder_point,
+          business: business
+        )
+        shop_inventory.save!
+      end
+    end
+    
+    true
+  rescue => e
+    false
+  end
+  
   def quantity_in_shop(shop)
     inventory = shop_inventories.find_by(shop: shop)
     inventory&.quantity || 0

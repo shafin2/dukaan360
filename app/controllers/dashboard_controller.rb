@@ -4,136 +4,105 @@ class DashboardController < ApplicationController
   layout 'dashboard'
   
   def index
-    if current_user.business_admin?
-      # Business admin dashboard - overview of all shops
-      business_admin_dashboard
-    else
-      # Shop worker dashboard - specific shop view
+    if current_user.business_owner?
+      business_owner_dashboard
+    elsif current_user.shop_worker?
       shop_worker_dashboard
+    else
+      redirect_to root_path, alert: 'Access denied.'
     end
   end
   
   private
   
-  def business_admin_dashboard
-    @business = current_user.business
-    @shops = @business.shops.includes(:users, :shop_inventories)
-    
+  def business_owner_dashboard
     # Business-wide metrics
-    @total_shops = @shops.count
-    @total_products = @business.products.count
-    @total_inventory_items = @business.shop_inventories.sum(:quantity)
-    @total_inventory_value = @business.shop_inventories
-                                    .joins(:product)
-                                    .sum('quantity * products.selling_price')
+    @total_sales = business_sales.sum(:total_amount)
+    @total_bills = business_bills.count
+    @total_customers = business_customers.count
+    @total_receivables = business_bills.where(status: ['pending', 'partial']).sum { |bill| bill.outstanding_amount }
     
-    # Today's sales across all shops
-    @today_sales = Sale.joins(user: :shop)
-                      .where(shops: { business: @business })
-                      .where(created_at: Date.current.all_day)
-                      .sum(:total_amount)
+    # Time-based metrics
+    @today_sales = business_sales.where(created_at: Date.current.all_day).sum(:total_amount)
+    @this_month_sales = business_sales.where(created_at: Date.current.beginning_of_month..Date.current.end_of_month).sum(:total_amount)
+    @last_month_sales = business_sales.where(created_at: Date.current.last_month.beginning_of_month..Date.current.last_month.end_of_month).sum(:total_amount)
     
-    # Low stock alerts across all shops
-    @low_stock_items = @business.shop_inventories
-                              .joins(:product)
-                              .where('shop_inventories.quantity <= shop_inventories.min_stock_level')
-                              .count
-    @critical_stock_items = @business.shop_inventories
-                                   .where('quantity = 0')
-                                   .count
+    # Growth calculation
+    @monthly_growth = @last_month_sales > 0 ? ((@this_month_sales - @last_month_sales) / @last_month_sales * 100).round(1) : 0
     
-    # Pending stock transfer approvals
-    @pending_transfers = @business.stock_transfers.pending.count
-    
-    # Recent transfers requiring attention
-    @recent_transfers = @business.stock_transfers
-                               .pending
-                               .includes(:product, :from_shop, :to_shop, :initiated_by)
-                               .order(created_at: :desc)
-                               .limit(5)
-    
-    # Shop performance summary
-    @shop_metrics = @shops.map do |shop|
+    # Shop performance overview
+    @shop_performance = current_user.business.shops.includes(:users, :bills, :shop_inventories).limit(6).map do |shop|
+      shop_sales = shop.users.joins(:sales).where(sales: { created_at: 1.month.ago..Time.current }).sum('sales.total_amount')
+      shop_bills = shop.bills.where(created_at: 1.month.ago..Time.current).count
+      
       {
         shop: shop,
-        inventory_count: shop.shop_inventories.sum(:quantity),
-        inventory_value: shop.shop_inventories.joins(:product)
-                            .sum('quantity * products.selling_price'),
-        today_sales: shop.users.joins(:sales)
-                         .where(sales: { created_at: Date.current.all_day })
-                         .sum('sales.total_amount'),
-        low_stock_count: shop.shop_inventories
-                            .where('shop_inventories.quantity <= shop_inventories.min_stock_level')
-                            .count,
-        active_users: shop.users.count
+        sales_amount: shop_sales,
+        bills_count: shop_bills,
+        workers_count: shop.users.count,
+        products_count: shop.shop_inventories.count
       }
     end
     
-    # Recent activity across all shops
-    @recent_sales = Sale.joins(user: :shop)
-                       .where(shops: { business: @business })
-                       .includes(:user, :product, user: :shop)
-                       .order(created_at: :desc)
-                       .limit(10)
+    # Recent activities across all shops
+    @recent_sales = business_sales.includes(:product, :user).order(created_at: :desc).limit(10)
+    @recent_bills = business_bills.includes(:customer, :user, :shop).order(created_at: :desc).limit(5)
+    
+    # Top products across all shops
+    @top_products = business_sales.joins(:product)
+                                  .where(created_at: 1.month.ago..Time.current)
+                                  .group('products.name')
+                                  .sum(:total_amount)
+                                  .sort_by { |_, amount| -amount }
+                                  .first(5)
+    
+    # Inventory alerts
+    @low_stock_count = current_user.business.shop_inventories.where('quantity <= min_stock_level').count
+    @out_of_stock_count = current_user.business.shop_inventories.where(quantity: 0).count
+    @unassigned_products_count = current_user.business.products.where('business_inventory_quantity > 0').count
   end
   
   def shop_worker_dashboard
+    # Shop-specific metrics for worker
     @shop = current_user.shop
-    @business = current_user.business
+    @today_sales = current_user.sales.where(created_at: Date.current.all_day).sum(:total_amount)
+    @this_month_sales = current_user.sales.where(created_at: Date.current.beginning_of_month..Date.current.end_of_month).sum(:total_amount)
+    @total_sales = current_user.sales.sum(:total_amount)
     
-    # Shop-specific metrics
-    @total_products = @shop.shop_inventories.count
-    @total_inventory_items = @shop.shop_inventories.sum(:quantity)
-    @inventory_value = @shop.shop_inventories
-                           .joins(:product)
-                           .sum('quantity * products.selling_price')
+    # Worker's performance
+    @sales_count = current_user.sales.count
+    @customers_count = current_user.customers.count
+    @pending_bills_count = current_user.bills.where(status: ['pending', 'partial']).count
     
-    # Today's sales for this shop
-    @today_sales = @shop.users.joins(:sales)
-                       .where(sales: { created_at: Date.current.all_day })
-                       .sum('sales.total_amount')
+    # Shop inventory for worker
+    @shop_products_count = @shop.shop_inventories.count
+    @low_stock_products = @shop.shop_inventories.where('quantity <= min_stock_level').includes(:product).limit(5)
+    @out_of_stock_count = @shop.shop_inventories.where(quantity: 0).count
     
-    # Low stock alerts for this shop
-        @low_stock_items = current_user.shop.shop_inventories
-                            .joins(:product)
-                            .where('shop_inventories.quantity <= shop_inventories.min_stock_level')
-                            .count
-    @critical_stock_items = @shop.shop_inventories
-                               .where('quantity = 0')
-                               .count
+    # Recent activities
+    @recent_sales = current_user.sales.includes(:product).order(created_at: :desc).limit(5)
+    @recent_bills = current_user.bills.includes(:customer).order(created_at: :desc).limit(3)
     
-    # Recent sales for this shop
-    @recent_sales = Sale.joins(:user)
-                       .where(users: { shop: @shop })
-                       .includes(:user, :product)
-                       .order(created_at: :desc)
-                       .limit(5)
-    
-    # Stock transfers involving this shop
-    @pending_transfers_out = StockTransfer.where(from_shop: @shop, status: 'pending').count
-    @recent_transfers = StockTransfer.where(
-      "(from_shop_id = ? OR to_shop_id = ?) AND business_id = ?", 
-      @shop.id, @shop.id, @business.id
-    ).includes(:product, :from_shop, :to_shop)
-     .order(created_at: :desc)
-     .limit(5)
-    
-    # Revenue calculation for this shop
-    @total_revenue = Sale.joins(:user)
-                        .where(users: { shop: @shop })
-                        .sum(:total_amount)
-    
-    # Top selling products in this shop
-    @top_products = @shop.shop_inventories
-                        .joins(:product, product: :sales)
-                        .where(sales: { user: @shop.users })
-                        .group('products.name')
-                        .order('SUM(sales.quantity) DESC')
-                        .limit(5)
-                        .pluck('products.name', 'SUM(sales.quantity)')
+    # Top selling products for this worker
+    @top_products = current_user.sales.joins(:product)
+                                     .where(created_at: 1.month.ago..Time.current)
+                                     .group('products.name')
+                                     .sum(:total_amount)
+                                     .sort_by { |_, amount| -amount }
+                                     .first(5)
   end
   
-  private
+  def business_sales
+    @business_sales ||= Sale.joins(:user).where(users: { business: current_user.business })
+  end
+  
+  def business_bills
+    @business_bills ||= Bill.joins(:user).where(users: { business: current_user.business })
+  end
+  
+  def business_customers
+    @business_customers ||= Customer.joins(:user).where(users: { business: current_user.business })
+  end
   
   def ensure_business_access
     unless current_user.business.present?

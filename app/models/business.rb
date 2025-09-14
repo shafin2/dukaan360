@@ -14,6 +14,7 @@ class Business < ApplicationRecord
   validates :secondary_color, format: { with: /\A#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})\z/, message: "must be a valid hex color" }
   
   scope :active, -> { where(active: true) }
+  scope :recent, -> { order(created_at: :desc) }
   
   # Business inventory management methods
   def total_products_count
@@ -49,19 +50,19 @@ class Business < ApplicationRecord
     shop_inventory
   end
   
-  # Get the business admin/owner
-  def business_admin
-    users.where(role: 'business_admin').first
+  # Get the business owner
+  def business_owner
+    users.where(role: 'business_owner').first
   end
   
-  # Get all business admins (in case there are multiple)
-  def business_admins
-    users.where(role: 'business_admin')
+  # Get all business owners (should typically be one per business)
+  def business_owners
+    users.where(role: 'business_owner')
   end
   
   # Get workers across all shops
-  def workers
-    users.where(role: 'worker')
+  def shop_workers
+    users.where(role: 'shop_worker')
   end
   
   # Check if business is active

@@ -53,34 +53,13 @@
           <!-- Left Column - Product Selection -->
           <div class="space-y-4">
             <!-- Product Selection -->
-            <div>
-              <%= f.label :product_id, "Select Product *", class: "block text-sm font-medium text-gray-700 mb-2" %>
-              <%= f.collection_select :product_id, @products, :id, :name, 
-                  { prompt: "Choose a product to sell..." }, 
-                  { 
-                    class: "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500",
-                    required: true,
-                    onchange: "updateProductInfo()"
-                  } %>
-            </div>
-
-            <!-- Product Info Display -->
-            <div id="product-info" class="hidden bg-gray-50 rounded-lg p-4 border">
-              <div class="flex items-center space-x-4">
-                <div id="product-image" class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                  <i data-feather="package" class="w-8 h-8 text-gray-400"></i>
-                </div>
-                <div class="flex-1">
-                  <h4 id="product-name" class="font-semibold text-gray-900"></h4>
-                  <p class="text-sm text-gray-600">
-                    Available: <span id="product-stock" class="font-medium"></span> packs
-                  </p>
-                  <p class="text-sm text-gray-600">
-                    Selling Price: <span id="product-price" class="font-medium text-green-600"></span>
-                  </p>
-                </div>
-              </div>
-            </div>
+            <%= render 'shared/searchable_product_select',
+                products: @products,
+                field_name: "sale[product_id]",
+                input_id: "sale_product_id",
+                label_text: "Select Product *",
+                price_field: "sale_unit_price",
+                selected_value: @sale.product_id %>
           </div>
 
           <!-- Right Column - Sale Details -->
@@ -146,7 +125,7 @@
     <% @products.each do |product| %>
       <%= product.id %>: {
         name: "<%= product.name %>",
-        stock: <%= product.quantity %>,
+        stock: <%= product.quantity_in_shop(current_user.shop) %>,
         price: <%= product.selling_price %>,
         imageUrl: "<%= product.image_url %>"
       },

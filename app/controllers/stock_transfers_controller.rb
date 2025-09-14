@@ -5,7 +5,7 @@ class StockTransfersController < ApplicationController
   layout 'dashboard'
   
   def index
-    if current_user.business_admin?
+    if current_user.business_owner?
       # Business admin sees all transfers in their business
       @transfers = current_user.business.stock_transfers
                               .includes(:product, :from_shop, :to_shop, :initiated_by, :approved_by)
@@ -26,7 +26,7 @@ class StockTransfersController < ApplicationController
       @transfers = @transfers.where(status: params[:status])
     end
     
-    @pending_approvals = current_user.business_admin? ? 
+    @pending_approvals = current_user.business_owner? ? 
       current_user.business.stock_transfers.pending.count : 0
   end
   
@@ -76,7 +76,7 @@ class StockTransfersController < ApplicationController
   end
   
   def approve
-    unless current_user.business_admin?
+    unless current_user.business_owner?
       redirect_to stock_transfers_path, alert: 'Only business admins can approve transfers.'
       return
     end
@@ -91,7 +91,7 @@ class StockTransfersController < ApplicationController
   end
   
   def reject
-    unless current_user.business_admin?
+    unless current_user.business_owner?
       redirect_to stock_transfers_path, alert: 'Only business admins can reject transfers.'
       return
     end
@@ -108,7 +108,7 @@ class StockTransfersController < ApplicationController
   end
   
   def complete
-    unless current_user.business_admin?
+    unless current_user.business_owner?
       redirect_to stock_transfers_path, alert: 'Only business admins can complete transfers.'
       return
     end
@@ -123,7 +123,7 @@ class StockTransfersController < ApplicationController
   end
   
   def cancel
-    unless @transfer.initiated_by == current_user || current_user.business_admin?
+    unless @transfer.initiated_by == current_user || current_user.business_owner?
       redirect_to stock_transfers_path, alert: 'You can only cancel your own transfers.'
       return
     end
@@ -140,7 +140,7 @@ class StockTransfersController < ApplicationController
   end
   
   def pending_approvals
-    unless current_user.business_admin?
+    unless current_user.business_owner?
       redirect_to stock_transfers_path, alert: 'Access denied.'
       return
     end
@@ -152,7 +152,7 @@ class StockTransfersController < ApplicationController
   end
   
   def bulk_approve
-    unless current_user.business_admin?
+    unless current_user.business_owner?
       redirect_to stock_transfers_path, alert: 'Only business admins can bulk approve transfers.'
       return
     end
@@ -181,7 +181,7 @@ class StockTransfersController < ApplicationController
   private
   
   def set_stock_transfer
-    if current_user.business_admin?
+    if current_user.business_owner?
       @transfer = current_user.business.stock_transfers.find(params[:id])
     else
       @transfer = StockTransfer.where(

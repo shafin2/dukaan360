@@ -44,13 +44,13 @@ class Shop < ApplicationRecord
   end
   
   # Get workers for this specific shop
-  def workers
-    users.where(role: 'worker')
+  def shop_workers
+    users.where(role: 'shop_worker')
   end
   
-  # Get shop managers (business admins can manage any shop in their business)
+  # Get shop managers (business owners can manage any shop in their business)
   def managers
-    business.users.where(role: ['business_admin', 'super_admin'])
+    business.users.where(role: 'business_owner')
   end
 
   # Ransackable attributes for ActiveAdmin search

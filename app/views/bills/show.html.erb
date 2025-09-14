@@ -185,12 +185,14 @@
               Record Payment
             </button>
             <% if @bill.outstanding_amount > 0 %>
-              <%= link_to mark_as_paid_bill_path(@bill), method: :patch,
-                  class: "w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-3 px-4 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg text-center block no-underline",
-                  confirm: "Mark this bill as fully paid?" do %>
-                <i data-feather="check-circle" class="w-4 h-4 inline mr-2"></i>
-                Mark as Paid
-              <% end %>
+              <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+                <p class="text-sm text-blue-600">
+                  Outstanding: Rs <%= number_with_delimiter(@bill.outstanding_amount.to_i) %>
+                </p>
+                <p class="text-xs text-blue-500 mt-1">
+                  Use "Record Payment" to add payments
+                </p>
+              </div>
             <% end %>
           </div>
         </div>

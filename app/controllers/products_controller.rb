@@ -5,7 +5,7 @@ class ProductsController < ApplicationController
   layout 'dashboard'
   
   def index
-    if current_user.business_admin?
+    if current_user.business_owner?
       # Business admin sees all products in their business
       @products = current_user.business.products
                              .includes(:user, :shop_inventories => :shop)
@@ -30,8 +30,8 @@ class ProductsController < ApplicationController
   end
   
   def new
-    unless current_user.can?('create_products')
-      redirect_to products_path, alert: 'You do not have permission to create products.'
+    unless current_user.business_owner?
+      redirect_to products_path, alert: 'Only business owners can create products.'
       return
     end
     
@@ -40,34 +40,36 @@ class ProductsController < ApplicationController
   end
   
   def create
-    unless current_user.can?('create_products')
-      redirect_to products_path, alert: 'You do not have permission to create products.'
+    unless current_user.business_owner?
+      redirect_to products_path, alert: 'Only business owners can create products.'
       return
     end
     
-    @product = current_user.business.products.build(product_params)
+    @product = current_user.business.products.build(product_params.except(:quantity, :shop_id))
     @product.created_by_id = current_user.id
     
+    # Set business inventory quantity from the form
+    initial_quantity = params[:product][:quantity].to_i
+    @product.business_inventory_quantity = initial_quantity
+    
     if @product.save
-      # If shop allocations are provided, create shop inventories
-      if params[:shop_allocations].present?
-        params[:shop_allocations].each do |shop_id, allocation_data|
-          next if allocation_data[:quantity].blank? || allocation_data[:quantity].to_i.zero?
-          
-          ShopInventory.create!(
-            product: @product,
-            shop: current_user.business.shops.find(shop_id),
-            business: current_user.business,
-            quantity: allocation_data[:quantity].to_i,
-            min_stock_level: allocation_data[:min_stock_level].to_i || @product.min_stock_level,
-            max_stock_level: allocation_data[:max_stock_level].to_i || @product.max_stock_level,
-            reorder_point: allocation_data[:reorder_point].to_i || @product.reorder_point
-          )
-        end
-      end
+      shop_id = params[:product][:shop_id]
       
-      redirect_to products_path, 
-        notice: 'Product was successfully created and allocated to shops.'
+      # If shop is selected, assign the inventory to that shop
+      if initial_quantity > 0 && shop_id.present?
+        shop = current_user.business.shops.find(shop_id)
+        if @product.assign_to_shop(shop, initial_quantity, current_user)
+          redirect_to products_path, 
+            notice: "Product created successfully with #{initial_quantity} units assigned to #{shop.name}."
+        else
+          redirect_to products_path, 
+            alert: "Product created but failed to assign to shop. Stock remains in business inventory."
+        end
+      else
+        # Stock stays in business inventory
+        redirect_to products_path, 
+          notice: "Product created successfully with #{initial_quantity} units in business inventory. You can assign to shops later."
+      end
     else
       @shops = current_user.business.shops.active
       render :new, status: :unprocessable_entity
@@ -76,7 +78,7 @@ class ProductsController < ApplicationController
   
   def show
     # Product details with shop inventory information
-    if current_user.business_admin?
+    if current_user.business_owner?
       @shop_inventories = @product.shop_inventories.includes(:shop)
     else
       @shop_inventories = @product.shop_inventories.where(shop: current_user.shop)
@@ -85,8 +87,8 @@ class ProductsController < ApplicationController
   end
   
   def edit
-    unless current_user.can?('edit_products')
-      redirect_to product_path(@product), alert: 'You do not have permission to edit products.'
+    unless current_user.business_owner?
+      redirect_to product_path(@product), alert: 'Only business owners can edit products.'
       return
     end
     
@@ -95,8 +97,8 @@ class ProductsController < ApplicationController
   end
   
   def update
-    unless current_user.can?('edit_products')
-      redirect_to product_path(@product), alert: 'You do not have permission to edit products.'
+    unless current_user.business_owner?
+      redirect_to product_path(@product), alert: 'Only business owners can edit products.'
       return
     end
     
@@ -131,15 +133,97 @@ class ProductsController < ApplicationController
   end
   
   def destroy
+    unless current_user.business_owner?
+      redirect_to products_path, alert: 'Only business owners can delete products.'
+      return
+    end
+    
     @product.destroy
     redirect_to products_path, 
-      notice: t('products.messages.deleted_successfully')
+      notice: 'Product was successfully deleted.'
   end
   
+  def add_stock
+    @product = current_user.business.products.find(params[:id])
+    
+    unless current_user.business_owner?
+      redirect_to products_path, alert: 'Access denied.'
+      return
+    end
+    
+    if params[:restock_quantity].present? && params[:restock_quantity].to_i > 0
+      quantity = params[:restock_quantity].to_i
+      
+      @product.update!(
+        business_inventory_quantity: @product.business_inventory_quantity + quantity
+      )
+      
+      redirect_to inventory_index_path,
+        notice: "Successfully added #{quantity} #{@product.unit}(s) to business inventory. New total: #{@product.business_inventory_quantity}"
+    else
+      redirect_to inventory_index_path,
+        alert: 'Please enter a valid quantity.'
+    end
+  end
+
+  def assign_stock
+    @product = current_user.business.products.find(params[:id])
+    
+    unless current_user.business_owner?
+      redirect_to inventory_index_path, alert: 'Access denied.'
+      return
+    end
+    
+    shop_id = params[:assign_shop_id]
+    quantity = params[:assign_quantity].to_i
+    
+    if shop_id.blank? || quantity <= 0
+      redirect_to inventory_index_path, alert: 'Please select a shop and enter a valid quantity.'
+      return
+    end
+    
+    if quantity > @product.unassigned_inventory
+      redirect_to inventory_index_path, alert: "Cannot assign #{quantity} units. Only #{@product.unassigned_inventory} units available in business inventory."
+      return
+    end
+    
+    shop = current_user.business.shops.find(shop_id)
+    
+    ActiveRecord::Base.transaction do
+      # Reduce business inventory
+      @product.update!(
+        business_inventory_quantity: @product.business_inventory_quantity - quantity
+      )
+      
+      # Add to shop inventory
+      shop_inventory = @product.shop_inventories.find_or_initialize_by(
+        shop: shop, 
+        business: current_user.business
+      )
+      
+      if shop_inventory.persisted?
+        shop_inventory.update!(quantity: shop_inventory.quantity + quantity)
+      else
+        shop_inventory.assign_attributes(
+          quantity: quantity,
+          min_stock_level: @product.min_stock_level,
+          max_stock_level: @product.max_stock_level,
+          reorder_point: @product.reorder_point
+        )
+        shop_inventory.save!
+      end
+    end
+    
+    redirect_to inventory_index_path,
+      notice: "Successfully assigned #{quantity} #{@product.unit}(s) of '#{@product.name}' to #{shop.name}"
+  rescue ActiveRecord::RecordNotFound
+    redirect_to inventory_index_path, alert: 'Shop not found.'
+  end
+
   private
   
   def set_product
-    if current_user.business_admin?
+    if current_user.business_owner?
       @product = current_user.business.products.find(params[:id])
     else
       # Workers can only view products available in their shop

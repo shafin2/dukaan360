@@ -1,0 +1,200 @@
+<div class="relative">
+  <label class="block text-sm font-medium text-gray-700 mb-2">
+    <%= label_text || "Select Product" %>
+  </label>
+  
+  <!-- Search Input -->
+  <div class="relative">
+    <input 
+      type="text" 
+      id="<%= input_id %>_search" 
+      class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+      placeholder="Search products..."
+      autocomplete="off"
+    >
+    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+      <i data-feather="search" class="h-5 w-5 text-gray-400"></i>
+    </div>
+  </div>
+  
+  <!-- Hidden Select Field -->
+  <%= select_tag field_name, 
+      options_from_collection_for_select(products, :id, :name, selected_value),
+      { 
+        prompt: "Select a product...",
+        id: input_id,
+        class: "hidden",
+        data: { 
+          target: target_element || "product-details",
+          price_field: price_field || "",
+          stock_field: stock_field || ""
+        }
+      } %>
+  
+  <!-- Dropdown Results -->
+  <div id="<%= input_id %>_dropdown" class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto">
+    <% products.each do |product| %>
+      <div class="product-option cursor-pointer hover:bg-gray-50 p-3 border-b border-gray-100 flex items-center space-x-3" 
+           data-id="<%= product.id %>"
+           data-name="<%= product.name %>"
+           data-price="<%= product.selling_price %>"
+           data-stock="<%= product.quantity_in_shop(current_user.shop) %>"
+           data-image="<%= product.image_url.present? ? product.image_url : '' %>"
+           data-unit="<%= product.unit %>">
+        
+        <!-- Product Image -->
+        <div class="flex-shrink-0">
+          <% if product.image_url.present? %>
+            <img src="<%= product.image_url %>" alt="<%= product.name %>" 
+                 class="w-12 h-12 object-cover rounded-lg border border-gray-200">
+          <% else %>
+            <div class="w-12 h-12 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center">
+              <i data-feather="package" class="w-6 h-6 text-gray-400"></i>
+            </div>
+          <% end %>
+        </div>
+        
+        <!-- Product Details -->
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <p class="text-sm font-medium text-gray-900 truncate"><%= product.name %></p>
+            <p class="text-sm font-semibold text-green-600">Rs <%= product.selling_price %></p>
+          </div>
+          <div class="flex items-center justify-between mt-1">
+            <p class="text-xs text-gray-500">Stock: <%= product.quantity_in_shop(current_user.shop) %> <%= product.unit %></p>
+            <% if product.quantity_in_shop(current_user.shop) <= 0 %>
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                Out of Stock
+              </span>
+            <% elsif product.quantity_in_shop(current_user.shop) <= 10 %>
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                Low Stock
+              </span>
+            <% else %>
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                In Stock
+              </span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+  
+  <!-- Selected Product Display -->
+  <div id="<%= input_id %>_selected" class="hidden mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+    <div class="flex items-center space-x-3">
+      <div id="<%= input_id %>_selected_image" class="flex-shrink-0">
+        <!-- Selected product image will be inserted here -->
+      </div>
+      <div class="flex-1">
+        <p id="<%= input_id %>_selected_name" class="text-sm font-medium text-gray-900"></p>
+        <p id="<%= input_id %>_selected_details" class="text-xs text-gray-600"></p>
+      </div>
+      <button type="button" onclick="clearProductSelection('<%= input_id %>')" 
+              class="text-gray-400 hover:text-gray-600">
+        <i data-feather="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('<%= input_id %>_search');
+  const dropdown = document.getElementById('<%= input_id %>_dropdown');
+  const hiddenSelect = document.getElementById('<%= input_id %>');
+  const selectedDisplay = document.getElementById('<%= input_id %>_selected');
+  const productOptions = dropdown.querySelectorAll('.product-option');
+  
+  // Search functionality
+  searchInput.addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    let hasVisibleOptions = false;
+    
+    productOptions.forEach(option => {
+      const productName = option.dataset.name.toLowerCase();
+      if (productName.includes(searchTerm)) {
+        option.style.display = 'flex';
+        hasVisibleOptions = true;
+      } else {
+        option.style.display = 'none';
+      }
+    });
+    
+    if (searchTerm && hasVisibleOptions) {
+      dropdown.classList.remove('hidden');
+    } else {
+      dropdown.classList.add('hidden');
+    }
+  });
+  
+  // Product selection
+  productOptions.forEach(option => {
+    option.addEventListener('click', function() {
+      const productId = this.dataset.id;
+      const productName = this.dataset.name;
+      const productPrice = this.dataset.price;
+      const productStock = this.dataset.stock;
+      const productImage = this.dataset.image;
+      const productUnit = this.dataset.unit;
+      
+      // Update hidden select
+      hiddenSelect.value = productId;
+      
+      // Update search input
+      searchInput.value = productName;
+      
+      // Update selected display
+      document.getElementById('<%= input_id %>_selected_name').textContent = productName;
+      document.getElementById('<%= input_id %>_selected_details').textContent = 
+        `Rs ${productPrice} • Stock: ${productStock} ${productUnit}`;
+      
+      // Update selected image
+      const imageContainer = document.getElementById('<%= input_id %>_selected_image');
+      if (productImage) {
+        imageContainer.innerHTML = `<img src="${productImage}" alt="${productName}" class="w-10 h-10 object-cover rounded-lg border border-gray-200">`;
+      } else {
+        imageContainer.innerHTML = `<div class="w-10 h-10 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center"><i data-feather="package" class="w-5 h-5 text-gray-400"></i></div>`;
+        feather.replace();
+      }
+      
+      // Show selected display
+      selectedDisplay.classList.remove('hidden');
+      
+      // Hide dropdown
+      dropdown.classList.add('hidden');
+      
+      // Update price field if specified
+      <% if price_field.present? %>
+        const priceField = document.getElementById('<%= price_field %>');
+        if (priceField) priceField.value = productPrice;
+      <% end %>
+      
+      // Trigger change event
+      hiddenSelect.dispatchEvent(new Event('change'));
+    });
+  });
+  
+  // Hide dropdown when clicking outside
+  document.addEventListener('click', function(event) {
+    if (!event.target.closest('#<%= input_id %>_search') && !event.target.closest('#<%= input_id %>_dropdown')) {
+      dropdown.classList.add('hidden');
+    }
+  });
+  
+  // Show dropdown when search input is focused
+  searchInput.addEventListener('focus', function() {
+    if (this.value) {
+      dropdown.classList.remove('hidden');
+    }
+  });
+});
+
+function clearProductSelection(inputId) {
+  document.getElementById(inputId + '_search').value = '';
+  document.getElementById(inputId).value = '';
+  document.getElementById(inputId + '_selected').classList.add('hidden');
+  document.getElementById(inputId + '_dropdown').classList.add('hidden');
+}
+</script> 

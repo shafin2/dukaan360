@@ -1,3 +1,4 @@
+# Create migration file for business inventory
 class CreateShops < ActiveRecord::Migration[8.0]
   def change
     create_table :shops do |t|

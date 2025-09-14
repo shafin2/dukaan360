@@ -1,7 +1,16 @@
 Rails.application.routes.draw do
-  devise_for :users, skip: [:registrations]
   devise_for :admin_users, ActiveAdmin::Devise.config
   ActiveAdmin.routes(self)
+  
+  # User Management (for business admins) - must come before devise routes
+  resources :users, constraints: { id: /\d+/ } do
+    member do
+      patch :assign_shop
+      patch :reset_password
+    end
+  end
+  
+  devise_for :users, skip: [:registrations]
   root "home#index"
   get "home/index"
   
@@ -19,42 +28,33 @@ Rails.application.routes.draw do
       get :valuation_report
       get :movement_history
       get :export_csv
+      post :transfer_stock
+      get :distribute
+      post :distribute
     end
     member do
       get :edit
       patch :update
       post :restock
-      post :distribute
-    end
-  end
-  
-  # Stock Transfer Management
-  resources :stock_transfers do
-    member do
-      patch :approve
-      patch :reject  
-      patch :complete
-      patch :cancel
-    end
-    collection do
-      get :pending_approvals
-      patch :bulk_approve
     end
   end
   
   # Products routes
-  resources :products
-  
-  # User Management (for business admins)
-  resources :users do
+  resources :products do
     member do
-      patch :assign_shop
-      patch :reset_password
+      post :add_stock
+      post :assign_stock
     end
   end
   
-  # Reports routes
-  resources :reports, only: [:index]
+  # Reports routes (Business Owner only)
+  resources :reports, only: [:index] do
+    collection do
+      get :sales_by_shop
+      get :receivables
+      get :inventory_report
+    end
+  end
   
   # Sales routes
   resources :sales, only: [:index, :new, :create, :show]
@@ -70,10 +70,6 @@ Rails.application.routes.draw do
   
   resources :bills do
     resources :payments, only: [:new, :create]
-    member do
-      patch :mark_as_paid
-      patch :cancel
-    end
   end
   
   # Payments as standalone resource

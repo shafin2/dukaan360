@@ -1,51 +1,51 @@
 class User < ApplicationRecord
   include Authorizable
   
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-  devise :database_authenticatable, :registerable,
+  # Include default devise modules. Registration disabled - only admins create accounts
+  devise :database_authenticatable,
          :recoverable, :rememberable, :validatable
   
-  belongs_to :business, optional: true
-  belongs_to :shop, optional: true
+  belongs_to :business
+  belongs_to :shop, optional: true  # Only shop_workers have shops
   has_many :products, foreign_key: :created_by_id, dependent: :destroy
   has_many :sales, dependent: :destroy
   has_many :customers, dependent: :destroy
   has_many :bills, dependent: :destroy
   has_many :payments, dependent: :destroy
-  has_many :user_permissions, dependent: :destroy
-  has_many :permissions, through: :user_permissions
   
-  # Updated role enum for new structure
+  # Remove complex permission associations - we'll use simple role-based permissions
+  # has_many :user_permissions, dependent: :destroy
+  # has_many :permissions, through: :user_permissions
+  
+  # Simple 2-role system as per requirements
   enum :role, { 
-    super_admin: 0,      # System admin who manages businesses
-    business_admin: 1,   # Business owner who manages their business
-    worker: 2           # Shop worker with limited permissions
+    business_owner: 0,   # Business owner who manages their business
+    shop_worker: 1       # Shop worker with limited permissions to their shop only
   }
   
   validates :name, presence: true
   
   # Role-based validations
-  validates :business_id, presence: true, unless: :super_admin?
-  validates :shop_id, presence: true, if: :worker?
+  validates :business_id, presence: true
+  validates :shop_id, presence: true, if: :shop_worker?
+  validates :shop_id, absence: true, if: :business_owner?
   
   # Scope methods for easy querying
   scope :for_business, ->(business) { where(business: business) }
   scope :for_shop, ->(shop) { where(shop: shop) }
+  scope :recent, -> { order(created_at: :desc) }
   
   # Helper methods for role checking
   def can_manage_business?
-    super_admin? || business_admin?
+    business_owner?
   end
   
   def can_manage_multiple_shops?
-    super_admin? || business_admin?
+    business_owner?
   end
   
   def assigned_shops
-    if super_admin?
-      Shop.all
-    elsif business_admin?
+    if business_owner?
       business&.shops || Shop.none
     else
       shop ? [shop] : []

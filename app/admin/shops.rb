@@ -1,7 +1,13 @@
 ActiveAdmin.register Shop do
-  menu priority: 2
+  menu priority: 3
   
-  permit_params :name, :address, :business_id, settings: {}
+  permit_params :name, :address, :business_id
+  
+  controller do
+    def scoped_collection
+      super.page(params[:page]).per(30)
+    end
+  end
   
   index do
     selectable_column
@@ -9,11 +15,8 @@ ActiveAdmin.register Shop do
     column :name
     column :business
     column :address
-    column :users_count do |shop|
-      shop.users.count
-    end
-    column "Inventory Items" do |shop|
-      shop.shop_inventories.count
+    column "Workers" do |shop|
+      shop.shop_workers.count
     end
     column :created_at
     actions
@@ -25,41 +28,10 @@ ActiveAdmin.register Shop do
 
   form do |f|
     f.inputs "Shop Information" do
-      f.input :business, as: :select, collection: Business.active.collect{ |b| [b.name, b.id] }, include_blank: "Select Business"
+      f.input :business, as: :select, collection: Business.all.collect{ |b| [b.name, b.id] }, include_blank: "Select Business"
       f.input :name
       f.input :address, as: :text
     end
     f.actions
-  end
-
-  show do
-    attributes_table do
-      row :name
-      row :business
-      row :address
-      row :settings do |shop|
-        shop.settings.present? ? JSON.pretty_generate(shop.settings) : "No settings"
-      end
-      row :created_at
-      row :updated_at
-    end
-
-    panel "Users (#{shop.users.count})" do
-      table_for shop.users do
-        column :name
-        column :email
-        column :role
-        column :created_at
-      end
-    end
-
-    panel "Inventory (#{shop.shop_inventories.count})" do
-      table_for shop.shop_inventories.includes(:product).limit(10) do
-        column :product
-        column :quantity
-        column :low_stock_threshold
-        column :created_at
-      end
-    end
   end
 end

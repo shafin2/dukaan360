@@ -1,0 +1,62 @@
+<div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+  <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+      <i data-feather="store" class="w-5 h-5 mr-2 text-blue-500"></i>
+      Shop Performance
+    </h3>
+  </div>
+  <div class="px-6 py-6">
+    <% if @shop_performance&.any? %>
+      <div class="space-y-4">
+        <% @shop_performance.each do |performance| %>
+          <% next unless performance.is_a?(Hash) && performance[:shop] %>
+          <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="font-semibold text-gray-900"><%= performance[:shop]&.name || "Unknown Shop" %></h4>
+              <span class="text-sm font-medium text-green-600">
+                Rs <%= number_with_delimiter((performance[:sales_amount] || 0).to_i) %>
+              </span>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              <div>
+                <p class="text-xs text-gray-500">Bills</p>
+                <p class="text-lg font-bold text-blue-600"><%= (performance[:bills_count] || 0).to_i %></p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">Workers</p>
+                <p class="text-lg font-bold text-purple-600"><%= (performance[:workers_count] || 0).to_i %></p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">Products</p>
+                <p class="text-lg font-bold text-indigo-600"><%= (performance[:products_count] || 0).to_i %></p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">Customers</p>
+                <p class="text-lg font-bold text-orange-600"><%= (performance[:customers_count] || 0).to_i %></p>
+              </div>
+            </div>
+            
+            <!-- Performance Bar -->
+            <div class="mt-4">
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <% 
+                  current_sales = (performance[:sales_amount] || 0).to_f
+                  max_sales = @shop_performance.map { |p| (p[:sales_amount] || 0).to_f }.max || 1
+                  percentage = max_sales > 0 ? (current_sales / max_sales * 100) : 0
+                %>
+                <div class="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full" style="width: <%= percentage %>%"></div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center py-12">
+        <i data-feather="store" class="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
+        <h4 class="text-lg font-medium text-gray-900 mb-2">No Shop Data</h4>
+        <p class="text-gray-600">Shop performance data will appear here once sales are recorded.</p>
+      </div>
+    <% end %>
+  </div>
+</div> 

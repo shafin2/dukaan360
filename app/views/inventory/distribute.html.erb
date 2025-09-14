@@ -1,0 +1,349 @@
+<% content_for :title, "Product Inventory Details" %>
+
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+  <!-- Header Section -->
+  <div class="bg-white shadow-lg border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="flex justify-between items-start">
+        <div>
+          <h1 class="text-4xl font-bold text-gray-900 mb-2">📦 <%= @product.name %> - Inventory Details</h1>
+          <p class="text-lg text-gray-600">View current stock allocations across all shops</p>
+        </div>
+        
+        <div class="flex flex-wrap gap-3">
+          <%= link_to inventory_index_path, 
+              class: "inline-flex items-center px-5 py-3 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg no-underline" do %>
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Inventory
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <!-- Product Overview -->
+    <div class="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+      <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
+        <h2 class="text-xl font-bold text-white flex items-center">
+          <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          Product Inventory Summary
+        </h2>
+      </div>
+      
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-blue-600 uppercase tracking-wide">Product Name</p>
+                <p class="text-2xl font-bold text-blue-900 mt-2"><%= @product.name %></p>
+              </div>
+              <div class="p-3 bg-blue-500 rounded-full">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-purple-600 uppercase tracking-wide">Business Stock</p>
+                <p class="text-3xl font-bold text-purple-900 mt-2"><%= @product.unassigned_inventory %></p>
+              </div>
+              <div class="p-3 bg-purple-500 rounded-full">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h4a1 1 0 011 1v2h4a1 1 0 011 1v1a1 1 0 01-1 1v9a2 2 0 01-2 2H8a2 2 0 01-2-2V7a1 1 0 01-1-1V5a1 1 0 011-1h4zM9 7v9h6V7H9z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-green-600 uppercase tracking-wide">Total Assigned</p>
+                <p class="text-3xl font-bold text-green-900 mt-2"><%= @product.assigned_inventory %></p>
+              </div>
+              <div class="p-3 bg-green-500 rounded-full">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-2 0H3m2-16h14a2 2 0 012 2v14M5 5v16m14 0V5" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-6 border border-amber-200">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-amber-600 uppercase tracking-wide">Total Inventory</p>
+                <p class="text-3xl font-bold text-amber-900 mt-2"><%= @product.total_business_inventory %></p>
+              </div>
+              <div class="p-3 bg-amber-500 rounded-full">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Current Shop Allocations -->
+    <div class="bg-white rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+      <div class="bg-gradient-to-r from-gray-800 to-gray-900 px-6 py-4">
+        <h3 class="text-xl font-bold text-white">🏪 Current Shop Allocations</h3>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Shop</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Current Stock</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Stock Value</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Last Updated</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-100">
+            <% if @current_allocations.any? %>
+              <% @current_allocations.each do |allocation| %>
+                <tr class="hover:bg-blue-50 transition-colors duration-150">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 h-12 w-12">
+                        <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center shadow-sm">
+                          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-2 0H3m2-16h14a2 2 0 012 2v14M5 5v16m14 0V5" />
+                          </svg>
+                        </div>
+                      </div>
+                      <div class="ml-4">
+                        <div class="text-sm font-bold text-gray-900"><%= allocation.shop.name %></div>
+                        <div class="text-sm text-gray-500"><%= allocation.shop.address if allocation.shop.respond_to?(:address) %></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-lg font-bold text-gray-900"><%= allocation.quantity %></div>
+                    <div class="text-xs text-gray-500"><%= @product.unit %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-lg font-bold text-green-600">Rs <%= number_with_delimiter((allocation.quantity * @product.selling_price).to_i) %></div>
+                    <div class="text-xs text-gray-500">@ Rs <%= number_with_delimiter(@product.selling_price) %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <% if allocation.quantity == 0 %>
+                      <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-red-100 text-red-800 border border-red-200">
+                        ⚠️ Out of Stock
+                      </span>
+                    <% elsif allocation.quantity <= allocation.min_stock_level %>
+                      <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                        ⚡ Low Stock
+                      </span>
+                    <% else %>
+                      <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                        ✅ In Stock
+                      </span>
+                    <% end %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= allocation.updated_at.strftime("%b %d, %Y") %>
+                  </td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="5" class="px-6 py-12 text-center">
+                  <div class="text-gray-400">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">No shop assignments</h3>
+                    <p class="mt-1 text-sm text-gray-500">This product hasn't been assigned to any shops yet.</p>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-2xl shadow-xl border border-white/20 p-6">
+      <h3 class="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
+      <div class="flex flex-wrap gap-3">
+        <button onclick="openAssignModal(<%= @product.id %>, '<%= @product.name %>', <%= @product.unassigned_inventory %>)" 
+                class="inline-flex items-center px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+          </svg>
+          Assign More Stock
+        </button>
+        
+        <button onclick="openRestockModal(<%= @product.id %>, '<%= @product.name %>', <%= @product.unassigned_inventory %>)" 
+                class="inline-flex items-center px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          Add to Business Stock
+        </button>
+        
+        <%= link_to edit_product_path(@product), 
+            class: "inline-flex items-center px-4 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg no-underline" do %>
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          Edit Product
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Assign Stock Modal -->
+<div id="assignModal" class="hidden fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-20 mx-auto p-5 border w-96 shadow-2xl rounded-2xl bg-white">
+    <div class="mt-3">
+      <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+        <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+        </svg>
+        Assign Stock to Shops
+      </h3>
+      <form id="assignForm" method="post">
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        <div class="space-y-4">
+          <div class="bg-blue-50 rounded-xl p-4">
+            <p class="text-sm text-blue-700">Product: <span id="assignProductName" class="font-bold"></span></p>
+            <p class="text-sm text-blue-700">Unassigned Quantity: <span id="assignUnassignedQuantity" class="font-bold"></span></p>
+          </div>
+          
+          <div>
+            <label for="assign_shop_id" class="block text-sm font-semibold text-gray-700 mb-2">Select Shop</label>
+            <select name="assign_shop_id" id="assign_shop_id" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="">Choose a shop...</option>
+              <% current_user.business.shops.each do |shop| %>
+                <option value="<%= shop.id %>">🏪 <%= shop.name %></option>
+              <% end %>
+            </select>
+          </div>
+          
+          <div>
+            <label for="assign_quantity" class="block text-sm font-semibold text-gray-700 mb-2">Assign Quantity</label>
+            <input type="number" name="assign_quantity" id="assign_quantity" min="1" required
+                   class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+        </div>
+        
+        <div class="flex justify-end space-x-3 mt-8">
+          <button type="button" onclick="closeAssignModal()" 
+                  class="px-6 py-3 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-xl font-semibold transition-colors">
+            Cancel
+          </button>
+          <button type="submit" 
+                  class="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-semibold transition-all duration-200">
+            Assign Stock
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add Stock to Business Modal -->
+<div id="restockModal" class="hidden fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-20 mx-auto p-5 border w-96 shadow-2xl rounded-2xl bg-white">
+    <div class="mt-3">
+      <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+        <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+        Add Stock to Business Inventory
+      </h3>
+      <form id="restockForm" method="post">
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        <div class="space-y-4">
+          <div class="bg-blue-50 rounded-xl p-4">
+            <p class="text-sm text-blue-700">Product: <span id="restockProductName" class="font-bold"></span></p>
+            <p class="text-sm text-blue-700">Current Business Stock: <span id="restockCurrentStock" class="font-bold"></span></p>
+          </div>
+          
+          <div>
+            <label for="restock_quantity" class="block text-sm font-semibold text-gray-700 mb-2">Add Quantity</label>
+            <input type="number" name="restock_quantity" id="restock_quantity" min="1" required
+                   class="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+          </div>
+        </div>
+        
+        <div class="flex justify-end space-x-3 mt-8">
+          <button type="button" onclick="closeRestockModal()" 
+                  class="px-6 py-3 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-xl font-semibold transition-colors">
+            Cancel
+          </button>
+          <button type="submit" 
+                  class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl font-semibold transition-all duration-200">
+            Add to Business Stock
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function openAssignModal(productId, productName, unassignedQuantity) {
+  document.getElementById('assignProductName').textContent = productName;
+  document.getElementById('assignUnassignedQuantity').textContent = unassignedQuantity;
+  document.getElementById('assignForm').action = `/products/${productId}/assign_stock`;
+  document.getElementById('assignModal').classList.remove('hidden');
+}
+
+function closeAssignModal() {
+  document.getElementById('assignModal').classList.add('hidden');
+  document.getElementById('assignForm').reset();
+}
+
+function openRestockModal(productId, productName, currentStock) {
+  document.getElementById('restockProductName').textContent = productName;
+  document.getElementById('restockCurrentStock').textContent = currentStock;
+  document.getElementById('restockForm').action = `/products/${productId}/add_stock`;
+  document.getElementById('restockModal').classList.remove('hidden');
+}
+
+function closeRestockModal() {
+  document.getElementById('restockModal').classList.add('hidden');
+  document.getElementById('restockForm').reset();
+}
+
+// Close modals when clicking outside
+window.onclick = function(event) {
+  const assignModal = document.getElementById('assignModal');
+  const restockModal = document.getElementById('restockModal');
+  
+  if (event.target === assignModal) {
+    closeAssignModal();
+  }
+  if (event.target === restockModal) {
+    closeRestockModal();
+  }
+}
+
+// Close modals on escape key
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    closeAssignModal();
+    closeRestockModal();
+  }
+});
+</script> 
