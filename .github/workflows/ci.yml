@@ -100,7 +100,7 @@ jobs:
     
     steps:
       - name: Deploy to Digital Ocean
-        uses: appleboy/ssh-action@v1.1.0
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.DO_HOST }}
           username: ${{ secrets.DO_USER }}
