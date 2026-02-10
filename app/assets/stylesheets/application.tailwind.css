@@ -24,4 +24,85 @@
   .alert-info {
     @apply bg-blue-50 border-blue-200 text-blue-800;
   }
+  
+  /* Business branded components */
+  .brand-bg-primary {
+    background-color: var(--business-primary, #3B82F6);
+  }
+  
+  .brand-bg-secondary {
+    background-color: var(--business-secondary, #1F2937);
+  }
+  
+  .brand-text-primary {
+    color: var(--business-primary, #3B82F6);
+  }
+  
+  .brand-text-secondary {
+    color: var(--business-secondary, #1F2937);
+  }
+  
+  .brand-border-primary {
+    border-color: var(--business-primary, #3B82F6);
+  }
+  
+  .brand-border-secondary {
+    border-color: var(--business-secondary, #1F2937);
+  }
+  
+  /* Hover states */
+  .brand-hover-bg-primary:hover {
+    background-color: var(--business-primary, #3B82F6);
+  }
+  
+  /* Active navigation state */
+  .nav-active {
+    border-bottom-color: var(--business-primary, #3B82F6) !important;
+    color: var(--business-secondary, #1F2937) !important;
+  }
+  
+  /* Dashboard navigation active state */
+  .nav-active-sidebar {
+    color: var(--business-primary, #3B82F6) !important;
+    background: linear-gradient(to right, rgba(var(--business-primary-rgb, 59, 130, 246), 0.1), rgba(var(--business-primary-rgb, 59, 130, 246), 0.05)) !important;
+    border-right-width: 2px !important;
+    border-right-color: var(--business-primary, #3B82F6) !important;
+  }
+  
+  .nav-icon-active {
+    background-color: rgba(var(--business-primary-rgb, 59, 130, 246), 0.2) !important;
+    color: var(--business-primary, #3B82F6) !important;
+  }
+  
+  /* Button styles with brand colors */
+  .btn-brand-primary {
+    @apply px-4 py-2 rounded-lg font-medium text-white transition-all duration-200;
+    background-color: var(--business-primary, #3B82F6);
+  }
+  
+  .btn-brand-primary:hover {
+    filter: brightness(0.9);
+  }
+  
+  .btn-brand-secondary {
+    @apply px-4 py-2 rounded-lg font-medium text-white transition-all duration-200;
+    background-color: var(--business-secondary, #1F2937);
+  }
+  
+  .btn-brand-secondary:hover {
+    filter: brightness(1.1);
+  }
+  
+  /* Card with brand accent */
+  .card-brand {
+    @apply bg-white rounded-lg shadow-sm p-6;
+    border-top: 4px solid var(--business-primary, #3B82F6);
+  }
+  
+  /* Badge with brand colors */
+  .badge-brand {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    background-color: rgba(var(--business-primary-rgb, 59, 130, 246), 0.1);
+    color: var(--business-primary, #3B82F6);
+  }
 }

@@ -36,11 +36,9 @@ module AuthorizationHelper
   # Get role badge styling
   def role_badge_class(role)
     case role.to_s
-    when 'super_admin'
-      'bg-red-100 text-red-800 border-red-200'
-    when 'business_admin'
+    when 'business_owner'
       'bg-blue-100 text-blue-800 border-blue-200'
-    when 'worker'
+    when 'shop_worker'
       'bg-green-100 text-green-800 border-green-200'
     else
       'bg-gray-100 text-gray-800 border-gray-200'
@@ -50,15 +48,14 @@ module AuthorizationHelper
   # Format role name for display
   def role_display_name(role)
     {
-      'super_admin' => 'Super Admin',
-      'business_admin' => 'Business Admin', 
-      'worker' => 'Worker'
+      'business_owner' => 'Business Owner',
+      'shop_worker' => 'Shop Worker'
     }[role.to_s] || role.to_s.humanize
   end
   
   # Check if user has business context
   def has_business_context?
-    user_signed_in? && (current_user.business_admin? || current_user.worker?)
+    user_signed_in? && current_user.business.present?
   end
   
   # Get current business for branding
@@ -78,7 +75,7 @@ module AuthorizationHelper
   
   # Check if feature should be visible based on permissions
   def feature_visible?(permission_name, shop = nil)
-    return true if current_user&.super_admin?
+    return true if user_signed_in? && current_user.business_owner?
     can?(permission_name, shop)
   end
   

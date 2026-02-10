@@ -4,10 +4,18 @@
     <!-- Logo -->
     <div class="flex items-center flex-shrink-0 px-6 pb-4">
       <%= link_to dashboard_index_path, class: "flex items-center no-underline" do %>
-        <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-          <span class="text-white font-bold text-lg">D</span>
-        </div>
-        <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Dukaan360</span>
+        <% if has_business_context? && current_business.logo_url.present? %>
+          <img src="<%= current_business.logo_url %>" alt="<%= current_business.name %>" class="w-10 h-10 rounded-xl shadow-lg object-cover">
+        <% else %>
+          <div class="w-10 h-10 brand-bg-primary rounded-xl flex items-center justify-center shadow-lg">
+            <span class="text-white font-bold text-lg">
+              <%= has_business_context? ? current_business.name.first.upcase : 'D' %>
+            </span>
+          </div>
+        <% end %>
+        <span class="ml-3 text-xl font-bold brand-text-primary">
+          <%= has_business_context? ? current_business.name : 'Dukaan360' %>
+        </span>
       <% end %>
     </div>
     
@@ -54,10 +62,18 @@
       <!-- Logo -->
       <div class="flex items-center flex-shrink-0 px-6 pb-4">
         <%= link_to dashboard_index_path, class: "flex items-center no-underline" do %>
-          <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-            <span class="text-white font-bold text-lg">D</span>
-          </div>
-          <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Dukaan360</span>
+          <% if has_business_context? && current_business.logo_url.present? %>
+            <img src="<%= current_business.logo_url %>" alt="<%= current_business.name %>" class="w-10 h-10 rounded-xl shadow-lg object-cover">
+          <% else %>
+            <div class="w-10 h-10 brand-bg-primary rounded-xl flex items-center justify-center shadow-lg">
+              <span class="text-white font-bold text-lg">
+                <%= has_business_context? ? current_business.name.first.upcase : 'D' %>
+              </span>
+            </div>
+          <% end %>
+          <span class="ml-3 text-xl font-bold brand-text-primary">
+            <%= has_business_context? ? current_business.name : 'Dukaan360' %>
+          </span>
         <% end %>
       </div>
       

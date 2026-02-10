@@ -32,27 +32,30 @@
   <!-- Stats Cards -->
   <%= render 'shared/products/stats_cards' %>
 
-  <!-- Products Table/Grid -->
-  <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-    <%= render 'shared/products/table_header' %>
-    
-    <div class="divide-y divide-gray-100">
-      <% if @products.any? %>
-        <% @products.each do |product| %>
-          <%= render 'shared/products/product_row', product: product %>
-        <% end %>
-      <% else %>
-        <%= render 'shared/products/empty_state' %>
-      <% end %>
+  <!-- Products Table -->
+  <% if @products.any? %>
+    <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <%= render 'shared/products/table_header' %>
+        <tbody class="divide-y divide-gray-100">
+          <% @products.each do |product| %>
+            <%= render 'shared/products/product_row', product: product %>
+          <% end %>
+        </tbody>
+      </table>
     </div>
     
     <!-- Pagination -->
     <% if @products.respond_to?(:total_pages) && @products.total_pages > 1 %>
-      <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+      <div class="mt-6 bg-white rounded-xl shadow border border-gray-200 px-6 py-4">
         <%= render 'shared/products/pagination', products: @products %>
       </div>
     <% end %>
-  </div>
+  <% else %>
+    <div class="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
+      <%= render 'shared/products/empty_state' %>
+    </div>
+  <% end %>
 </div>
 
 <script>

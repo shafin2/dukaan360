@@ -1,25 +1,13 @@
-<!-- Table Header -->
-<div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-  <div class="overflow-x-auto">
-    <div class="min-w-[800px] grid grid-cols-12 gap-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
-      <div class="col-span-3">
-        Product
-      </div>
-      <div class="col-span-2">
-        Stock Status
-      </div>
-      <div class="col-span-2 text-center">
-        Buying Price
-      </div>
-      <div class="col-span-2 text-center">
-        Selling Price
-      </div>
-      <div class="col-span-2 text-center">
-        Expiry Status
-      </div>
-      <div class="col-span-1 text-right">
-        Actions
-      </div>
-    </div>
-  </div>
-</div>
+<thead class="bg-gray-50 border-b border-gray-200">
+  <tr>
+    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
+    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Stock</th>
+    <% if current_user.business_owner? %>
+      <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Buying Price</th>
+    <% end %>
+    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Selling Price</th>
+    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Expiry</th>
+    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+  </tr>
+</thead>

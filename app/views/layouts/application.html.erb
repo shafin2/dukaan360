@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Dukaan360" %></title>
+    <title><%= content_for(:title) || (has_business_context? ? current_business.name : "Dukaan360") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -17,9 +17,20 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
+    <%# Inject business-specific CSS variables %>
+    <% if has_business_context? %>
+      <style>
+        :root {
+          --business-primary: <%= business_primary_color %>;
+          --business-secondary: <%= business_secondary_color %>;
+          --business-primary-rgb: <%= hex_to_rgb(business_primary_color) %>;
+          --business-secondary-rgb: <%= hex_to_rgb(business_secondary_color) %>;
+        }
+      </style>
+    <% end %>
+
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
     
     <!-- FontAwesome Icons -->
