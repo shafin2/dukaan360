@@ -1,75 +1,91 @@
 # Competitor Analysis
 
-Research covers Indian khata/billing leaders (Khatabook, Vyapar, OkCredit, myBillBook), Pakistan-specific apps (Udhaar Book, DigiKhata, Mobikhata, Khata Master, POSify, Karobar Solution, AsaanDukaan, Oscar POS), global POS/accounting tools (Loyverse, Square, ERPNext/Frappe, Zoho Books/Inventory, QuickBooks, Wave), Pakistani B2B/procurement plays (Dastgyr, Tajir, Bazaar), and WhatsApp-commerce tooling (WhatsApp Business App, AiSensy/WATI/Interakt).
+This combines two research passes: an initial sweep (khata/ledger apps, global tools, WhatsApp-commerce tooling) and a deeper, later pass focused specifically on Pakistan-native POS incumbents, run against real product tiers and pricing. Read this alongside [10-feature-gap-matrix.md](./10-feature-gap-matrix.md), which turns the incumbent research below into a concrete P0–P3 backlog against the current data model.
 
-## Feature matrix
+## The market splits into four segments, not one flat competitor list
 
-| Tool | Category | Credit/Khata | Multi-Shop | WhatsApp | AI | Offline | Urdu/Roman Urdu | Pricing |
-|---|---|---|---|---|---|---|---|---|
-| Khatabook (IN) | Ledger | Yes, core | Yes | Reminders | No | Yes | No (13 langs, not Urdu) | Free + paid add-ons |
-| Vyapar (IN) | Billing+Inventory | Basic | Limited | Reminders (buggy) | Voice entry, OCR bill scan | Partial | No | ₹699–14,299/yr |
-| OkCredit (IN) | Ledger | Yes, core | No | Reminders | No | Partial | No (11 langs) | Free, ads + new paywalls |
-| myBillBook (IN) | GST Billing | Basic | Yes | Reminders+links | AI bank reconciliation | Partial | No | From ₹349/mo |
-| **Udhaar Book (PK)** | Ledger+staff | Yes, core | Yes | SMS | No | Yes | Urdu, Sindhi | Free |
-| **DigiKhata (PK)** | Ledger+payroll | Yes, core | No | Free, unlimited | No | Yes | Urdu, Persian, Pashto | 100% free |
-| **Mobikhata (PK)** | Ledger | Yes, core | No | — | No | Yes | Urdu | Free, ad-free |
-| **Khata Master (PK)** | Cloud POS+accounting | Yes | Yes | — | No | Partial | Yes | PKR 2,000/mo |
-| **POSify (PK)** | POS | Yes | Yes | — | No | Yes | Yes | From PKR 2,000/mo, JazzCash/Easypaisa |
-| **Karobar Solution (PK)** | POS+khata | Yes | Yes | — | No | 100% offline | Yes | Undisclosed |
-| **AsaanDukaan (PK)** | POS | Basic | — | Invoices | No | — | Yes | Undisclosed |
-| **Oscar POS (PK)** | POS, FBR-integrated | — | Yes | Invoices | No | Cloud+on-prem | — | Undisclosed |
-| Loyverse | POS+inventory | No | Paid add-on | No | No | Partial | No | Free core, paid add-ons |
-| Square | POS | No | Yes | No | No | Yes | No | Not usable in PKR |
-| ERPNext/Frappe | Full ERP | No | Yes | No | No | Yes | No | Free/self-hosted, needs a developer |
-| Dastgyr/Tajir/Bazaar (PK B2B) | Procurement/BNPL | Bazaar: yes | N/A | — | No | — | Tajir: Urdu | Free app, margin on goods |
-| Zoho Books/Inventory | Accounting | No | Yes (Enterprise) | No | Zia AI | No | No | Free–$275/mo |
-| QuickBooks | Accounting | No | Yes | No | Limited | No | No PK localization | From $38/mo |
-| Wave | Accounting | No | No | No | No | No | No | Free / $19/mo |
-| WhatsApp Business App | Catalog/orders | No | No | Native | No | N/A | N/A | Free |
-| AiSensy/WATI/Interakt | WA automation | No | N/A | Native+bots | Basic AI agents | N/A | N/A | $49–187/mo — overbuilt for one shop |
+### Segment A — Lightweight khata/udhaar ledger apps
+**Players:** Udhaar Book, DigiKhata, Mobikhata, Zayyrah, Khatabook (India-origin, used in PK too), OkCredit.
 
-## Table stakes — must not lag on these
+These solve exactly one problem: replace the paper *bahi khata* for tracking who owes what, with one-tap WhatsApp/SMS reminders. No inventory, no billing, often no login friction. Mobikhata's positioning is explicit: free unlimited ledgers, offline access, WhatsApp PDF debt reminders, no subscription.
 
-- Customer credit/khata ledger with a running balance
-- Basic sales/purchase invoicing and reporting
-- Payment reminders over SMS/WhatsApp
-- Cloud backup tied to a phone number (survives device loss)
-- Low-stock alerts on inventory
-- Multi-payment-mode recording (cash / bank / mobile wallet)
-- Simple, low-literacy-friendly UI — every serious PK player leads with this
+**Why this matters:** this segment proves WhatsApp reminders and dead-simple credit tracking are **already an expected baseline** in the Pakistani market — not a differentiator, a prerequisite. It's the zero-training-threshold entry point a shopkeeper adopts *before* they're ready for a real POS. Dukaan360's planned WhatsApp reminder feature (see [06-whatsapp-integration.md](./06-whatsapp-integration.md)) is catching up to table stakes here, not innovating past it — treat it with corresponding urgency, not as a nice-to-have.
 
-Dukaan360 v1 already covers most of this (credit/khata via Bill+Payment+Customer, low-stock via ShopInventory status, split cash/online payments). The gap is reminders and cloud backup framing, not the core ledger.
+### Segment B — Full POS + inventory platforms (the real competitive set)
 
-## Where the real opportunity is (few or no competitors do this well)
+**B1 — International product, localized for Pakistan**
+- **Vyapar** — India-origin (GST-first product), running a dedicated Pakistan operation (vyaparpk.com) with PKR pricing, a local WhatsApp support line, and Roman-Urdu testimonials. Tiers: Mobile-only, Desktop-only, or Mobile+Desktop, each in Gold/Platinum, roughly **PKR 10,500–78,000/year** depending on tier and term. Positions itself across retail, wholesale, service, manufacturing, and distribution — the same breadth Dukaan360 targets. Marketed as needing zero accounting/technical knowledge. Core pitch in their own testimonial language: *"pehle manual registers use karti thi, ab sab kuch ek hi app me manage ho jata hai"* — the value prop is consolidation, not any single feature.
+- **Marg ERP** — India-only today, but the deepest wholesale/distribution ERP found. Useful as a "what mature looks like" benchmark even though not a direct PK competitor: party-wise rate/discount/scheme engine, route/salesman-wise dispatch, cash/credit/split invoicing, bank reconciliation on the supplier side.
 
-1. **True offline-first billing.** Load-shedding and patchy PTCL internet are repeatedly cited as the actual dealbreaker in this market — more than any feature checklist. Khatabook/Vyapar/OkCredit are only partially offline; a handful of PK-specific apps (Karobar Solution, Mint POS) market full offline as their headline. This matters more for a single physical shop than almost anything else on this list.
-2. **Native JazzCash/Easypaisa integration.** Table stakes locally, absent from every India-first or global tool. Dukaan360 already models `mobile_payment` and split payments — wiring an actual JazzCash/Easypaisa API in is a clear, cheap wedge.
-3. **Automated WhatsApp/SMS credit-reminder engine tied to due dates.** Vendors in this space claim 3–4x faster credit recovery with automated reminders — this is described as the emotional core feature of khata apps, not a nice-to-have. This is exactly the "outbound" WhatsApp use case already planned (see [06-whatsapp-integration.md](./06-whatsapp-integration.md)).
-4. **Role-based access + a tamper-evident audit trail as an explicit anti-theft feature.** Dukaan360 already has this (`AuditLog` with snapshotted actor identity, recently extended to edits and spot-sale effects) — no competitor solves worker-theft/shrinkage well, and it directly answers the top qualitative owner complaint (trusting staff with the register).
-5. **Urdu / Roman Urdu as a first-class UI language**, not bolted on. PK-specific apps do this; every India-first or global competitor (Khatabook, Vyapar, OkCredit, Zoho, QuickBooks) does not.
-6. **AI-assisted low-friction entry** — OCR invoice scanning, voice entry — is nascent even among the leaders (only Vyapar and myBillBook attempt it) and entirely absent from PK-specific apps. See [07-ai-features.md](./07-ai-features.md) for the concrete build plan.
-7. **Expiry/waste tracking with loss reporting.** Dukaan360 already has a waste/write-off button for expired stock — extending it with expiry alerts and shrinkage analytics is a strong, cheap hook for pharmacies (where DRAP compliance makes batch/expiry logging a legal expectation) and grocery.
-8. **Transparent, non-paywall pricing.** OkCredit and Khatabook both draw real user resentment for paywalling previously-free features and creeping ads/KYC friction. A flat, predictable price is a trust play in a price-sensitive, subscription-wary market.
+**B2 — Pakistan-native/local players**
+- **iPOS** (ipos.com.pk) — operating since 1995, one of the most established. Sells hard on **FBR-IMS integration** (QR code, JSON invoice, fiscal number), offline billing, multi-store/cloud dashboards, batch/expiry + CNIC tracking (pharmacy-grade), full hardware kits (barcode scanners, label/weighing-scale printers). Closest thing to an enterprise incumbent in this space.
+- **myPOS** (Lahore-based) — markets itself as a "complete online ERP," not just POS: multi-company/multi-location, purchase orders tied to supplier payments, inventory movement tracked through purchase→return→damage→sale, and **per-user role levels (Owner, Sale, Purchase)** — the same idea as Dukaan360's Owner/Worker split, just coarser.
+- **Sadahisab POS** — actively marketing itself as "better than myPOS," multi-unit inventory, positioning directly against myPOS as the incumbent to unseat.
+- **LookPOS** — claims "#1 overall," multi-location, full offline mode, ~$95/year entry price, 500+ PK businesses claimed.
+- **CornPOS / Granet Pro** — public pricing (CornPOS ~PKR 8,000/month **per branch**; Granet Pro from PKR 2,999/month), both push offline-first architecture and **PRA (Punjab Revenue Authority) tax compliance** — lean restaurant/retail hybrid.
+- **Moneypex** — explicit "Built for Pakistan" messaging: PKR-native, FBR/PRA/SRB tax sync, offline desktop billing, multi-branch centralized dashboard.
+- **ManageKaro** — newer, explicitly frames itself against Vyapar and iPOS as "all-in-one" vs. "POS-only tools solve one problem" — the exact consolidation argument Dukaan360 would also want to make.
+
+**Also referenced for a global-standard-setter view (low PK relevance today):** Zoho Inventory (explicit multi-warehouse, role-based permissions — a level of granularity worth benchmarking against even without PK localization), Square/Loyverse (fast counter-sale UX, no PKR pricing or udhaar model).
+
+### Segment C — Restaurant-specific POS (adjacent, not core competitors)
+DinePlan, Oscar POS, CISePOS, Blink — table management, KDS, online ordering/delivery. Not a direct threat to a retail/wholesale/distribution product, but some vendors (Granet Pro) straddle both restaurant and retail, which is worth knowing when reading their marketing.
+
+### Segment D — International generalist SaaS (low Pakistan-fit today)
+Square, QuickBooks POS, Loyverse, HDPOS, ERPLY — show up in "best POS Pakistan" listicles but have no PKR-native pricing, no udhaar/credit-first design, no FBR/local tax handling, and largely assume card/digital payment rails not yet dominant in cash-heavy Pakistani retail.
+
+## Cross-cutting patterns across nearly every competitor
+
+1. **Offline-first is a headline feature, not a footnote.** Moneypex, LookPOS, Granet Pro, CornPOS, iPOS all lead with "billing continues without internet." This is the single strongest recurring signal in both research passes — see [09-roadmap.md](./09-roadmap.md), where it stays a standing priority, not a one-time task.
+2. **WhatsApp reminders/sharing are close to universal** — present even in free khata-only apps. Confirms the point above: Dukaan360's planned WhatsApp features are catching up to baseline, not leapfrogging it.
+3. **Role-based access exists everywhere, but shallow.** myPOS's Owner/Sale/Purchase is the most explicit example found; none of the researched competitors describe anything as granular as Dukaan360's Worker role hiding profit specifically (see differentiators below).
+4. **Tax/regulatory compliance (FBR/PRA/SRB) is becoming a 2026 selling point among local incumbents** — iPOS, Moneypex, CornPOS, Granet Pro all foreground it, even though it's explicitly out of scope for Dukaan360 right now. This is a forward-looking gap to track, not act on immediately — see [10-feature-gap-matrix.md](./10-feature-gap-matrix.md) for the timing read (currently P2, likely P0/P1 within 12–18 months as informal-economy pressure increases).
+5. **Batch/expiry tracking is called out specifically for pharmacy and perishables** — directly relevant to Dukaan360's current sweets/mithai client, and the product's existing warehouse expiry-date field means it may already be ahead here for that vertical.
+6. **Pricing is per-branch/location in most local tools** (CornPOS ~PKR 8,000/mo/branch; Vyapar scales by device/seat instead) — worth keeping in mind for how multi-shop plans get priced later, even though multi-shop isn't this rewrite's v1 focus.
+
+## Table stakes (must not lag)
+
+Customer credit/khata ledger with a running balance, basic sales/purchase invoicing and reporting, payment reminders over SMS/WhatsApp, cloud backup tied to a phone number, low-stock alerts, multi-payment-mode recording (cash/bank/mobile wallet), a simple low-literacy-friendly UI. Dukaan360 v1 already covers most of this — the gap is reminders, backup framing, and (per the deeper incumbent research) barcode scanning and supplier/purchasing, which are near-universal among the Pakistan-native POS tier specifically (Segment B2) even though absent from the khata-app tier (Segment A).
+
+## Where the real opportunity is
+
+1. **True offline-first billing.** The most-cited dealbreaker across both research passes — more than any feature checklist.
+2. **Native JazzCash/Easypaisa integration.** Table stakes locally, absent from every non-PK competitor.
+3. **Automated WhatsApp/SMS credit-reminder engine.** Vendors claim 3–4x faster credit recovery with this; described as the emotional core feature in Segment A, not a nice-to-have — and, per the incumbent research, a gap versus the *free* khata apps specifically, which is a more urgent framing than "behind paid POS competitors."
+4. **Role-based access + a tamper-evident, field-level audit trail as an explicit anti-theft feature.** Dukaan360 already has this, and the deeper research confirms it: audit logging with old→new value diffs is unusually rigorous compared to every incumbent's back-office module, which typically tracks actions less visibly.
+5. **Urdu/Roman Urdu as a first-class UI language**, not bolted on.
+6. **AI-assisted low-friction entry** (OCR, natural-language queries) — nascent even among leaders.
+7. **Expiry/waste tracking with loss reporting**, extended with expiry alerts and shrinkage analytics — a strong hook for the current sweets/mithai client and for pharmacy/grocery generally.
+8. **Transparent, non-paywall pricing** — OkCredit/Khatabook draw real resentment for paywalling previously-free features.
+
+## Two standout differentiators worth protecting and marketing (confirmed against 6 named competitors)
+
+Nothing else surfaced across iPOS, myPOS, Marg ERP, Vyapar, Zoho Inventory, or Square/Loyverse that does either of these:
+
+1. **A single object (the `Bill`) that natively carries both the itemized order and the udhaar/credit state.** Competitors either do billing well (POS tier) or credit tracking well (khata tier) — rarely both natively fused in one record. This is a genuine structural advantage baked into the domain model since v1; the rewrite should preserve and highlight it, not just carry it forward incidentally.
+2. **Profit-visibility gating by role** — a Shop Worker sees today's sales, never profit. myPOS and Vyapar both have *some* role concept, but neither is documented as specifically protecting margin/profit data the way Dukaan360's Owner/Worker split does. This is a trust-building feature for an owner deciding whether to let staff use the system at all, and worth stating explicitly in positioning rather than leaving implicit.
+
+## What NOT to build (confirmed across both research passes)
+
+- **Full accounting/GL/CA-grade bookkeeping** — even Vyapar is criticized for being too basic here versus dedicated accounting software; it's a different product category and no competitor tries to be great at both.
+- **Restaurant-specific features** (KDS, table management, waiter pads) — not the target vertical; several competitors (Marg, iPOS, Granet Pro) spread themselves thin trying to serve retail + restaurant + pharmacy + salon at once. Staying focused on retail/wholesale/distribution is a defensible choice, not a limitation.
+- **E-commerce/online store builder** — low relevance until there's evidence customers want online ordering; don't build speculatively.
+- **Multi-currency** — already correctly deferred; no researched competitor makes this a headline feature for the Pakistani market either.
 
 ## Recurring shop-owner pain points found in reviews/complaints
 
-- Distrust of digitizing records at all (tax-averse, cash-first culture) — framing needs to emphasize privacy/control, not "digital transformation."
-- Load-shedding breaks app usability — repeatedly named as a dealbreaker.
-- India-first apps ignore Pakistan entirely: no Urdu, no JazzCash/Easypaisa, no local support.
-- Freemium bait-and-switch (OkCredit/Khatabook) — previously free features later paywalled.
-- Sync failures and data mismatches (Vyapar), broken WhatsApp invoice attachments.
-- Full ERPs (ERPNext) are too complex for a single shop — needs a dedicated developer, users explicitly ask for "a light version, lower cost."
-- Fear of losing all records if the phone is lost — cloud recovery tied to a phone number is a repeated trust-builder in competitor marketing.
+Distrust of digitizing records at all (frame around privacy/control, not "digital transformation"); load-shedding breaking app usability; India-first apps ignoring Pakistan (no Urdu, no JazzCash/Easypaisa); freemium bait-and-switch (OkCredit/Khatabook); sync failures and broken WhatsApp invoice attachments (Vyapar); full ERPs (ERPNext) being too complex for one shop — users explicitly ask for "a light version, lower cost"; fear of losing all records if the phone is lost.
 
 ## What this means for the rewrite, ranked by impact
 
-1. Offline-first billing/quick-sale/khata entry that survives outages and syncs losslessly after — the single most-cited dealbreaker locally; worth real architectural attention (see [05-architecture.md](./05-architecture.md)).
+1. Offline-first billing/quick-sale/khata entry that survives outages and syncs losslessly — the single most-cited dealbreaker across both research passes.
 2. Native JazzCash/Easypaisa payment collection and reconciliation.
-3. Automated WhatsApp credit-due reminder engine (the outbound WhatsApp feature) — highest-leverage single feature for retention.
-4. Sharpen the existing audit-trail/role system into an explicit anti-theft selling point.
-5. Urdu/Roman Urdu as a first-class UI and WhatsApp-bot language, not an afterthought.
-6. AI-assisted entry (OCR invoices, natural-language queries) — see [07-ai-features.md](./07-ai-features.md).
-7. Expiry/waste tracking extended with alerts and loss reporting.
-8. Flat, transparent pricing with no feature paywall creep.
+3. Automated WhatsApp credit-due reminder engine — reframed as catching up to a free-tier baseline, not innovating past paid competitors, which raises its urgency.
+4. Barcode scanning + label printing and a supplier/purchasing module (vendor records, purchase orders, payables) — confirmed universal gaps against the Pakistan-native POS tier specifically; see [10-feature-gap-matrix.md](./10-feature-gap-matrix.md) for the full prioritized breakdown.
+5. Sharpen the existing audit-trail/role system into an explicit anti-theft and trust-building selling point — already a genuine differentiator, currently under-marketed.
+6. Urdu/Roman Urdu as a first-class UI and WhatsApp-bot language.
+7. AI-assisted entry (OCR invoices, natural-language queries) — see [07-ai-features.md](./07-ai-features.md).
+8. Expiry/waste tracking extended with alerts and loss reporting — pulled forward given the current sweets/mithai client, where perishability and weighing-scale-based sale are direct operational needs (see [10-feature-gap-matrix.md](./10-feature-gap-matrix.md)).
+9. Flat, transparent pricing with no feature paywall creep.
 
-Multi-shop consolidated dashboards and supplier/reorder integration (à la Dastgyr/Tajir) are real opportunities too, but out of scope for this rewrite's v1 per [01-vision-and-problem.md](./01-vision-and-problem.md) — the concept stays single-shop-per-tenant for now.
+Multi-shop consolidated dashboards and supplier/reorder marketplace integration remain real opportunities but stay out of scope for this rewrite's v1 per [01-vision-and-problem.md](./01-vision-and-problem.md) — though note the feature-gap research explicitly flags wholesale/distribution as a named expansion target, which is worth keeping in view even while the v1 concept stays single-shop.

@@ -30,6 +30,8 @@ Next.js 15 (App Router, API routes as the only backend) · React 19 · MongoDB A
 
 The product thinking is solid and already validated by a real shop's daily use — bills, credit, split payments, stock transfers, waste write-offs, and audit trails are not naive features, they reflect real operational needs (e.g. `paymentChannel: split` and `mobile_payment` exist because Pakistani customers genuinely pay in a mix of cash and Easypaisa/JazzCash). **The rewrite should preserve this domain model almost as-is** — it just needs a database and backend that can enforce its invariants instead of relying on application code to get every calculation right by hand.
 
+Competitive research against 6 named vendors (iPOS, myPOS, Vyapar, Marg ERP, Zoho Inventory, Square/Loyverse — see [03-competitor-analysis.md](./03-competitor-analysis.md)) independently confirms two things in this model are genuine differentiators, not just adequate: the `Bill` object natively fusing the itemized order with udhaar/credit state (no competitor does both cleanly in one object), and the Owner/Worker role split specifically gating profit visibility (Workers see today's sales, never profit — more deliberate than any researched competitor's role system). Both are worth preserving exactly as-is and marketing explicitly, not just carrying forward incidentally. The audit trail's actor-snapshotting and per-field tracking is similarly rated unusually rigorous compared to competitors' back-office modules.
+
 ## Concrete weaknesses to fix
 
 1. **Financial correctness is being hand-rolled in application code, not enforced by the database.** The commit history shows repeated fixes to money-adjacent logic — "fix the net collection calculation," "fix partial bill refund issue," "fix bill and sale product show issue," "fix all issue created by the date edit option." These are exactly the class of bug a relational schema with real transactions, foreign-key constraints, and check constraints (e.g. `totalPaid <= totalAmount`) catches at write time instead of in production. Mongoose transactions exist but are opt-in and easy to miss on a new code path; Postgres transactions with proper constraints are structural.
@@ -39,6 +41,17 @@ The product thinking is solid and already validated by a real shop's daily use �
 5. **Timezone handling has been a recurring bug source** (`fix timezone issue` is the most recent commit) — a symptom of doing date-boundary logic (e.g. "today's sales") in application code against a database with no native date/time type discipline.
 6. **No automation or outward-reaching channel.** Everything requires the owner to open the app. There's no WhatsApp, no notifications, no AI — the app only works when someone is actively looking at it.
 7. **Serverless + MongoDB Atlas cost/control tradeoff.** Fine at one shop's scale; doesn't give us a place to run Evolution API (needs a persistent, stateful process, not a serverless function) or background workers.
+
+## Ground-truth bugs and gaps reported by the client
+
+A functional-requirements/QA doc from the client actually running v1 confirms 11 specific, concrete issues — the most direct signal in this whole docs folder, since it's reported pain rather than inferred priority. Full detail and per-item rewrite implications in [11-client-feedback-requirements.md](./11-client-feedback-requirements.md); the headline items:
+
+- **Quick Sale has a real data-model gap** — a multi-item quick sale is stored as N separate transaction records instead of one grouped record with line items, unlike `Bill`, which already does this correctly. This needs a schema decision in Phase 1, before any data migration runs.
+- **Reset password is broken end to end**, traced to an email field that's disabled/unset on some accounts — a concrete P0 for the new JWT auth system, and a real question of whether email or a WhatsApp/phone-based reset path fits this user base better.
+- **Historical price/profit snapshots aren't being honored consistently** (a later price change appears to retroactively affect past sales in at least one code path) and **spot-sale profit silently defaults to zero** because purchase cost isn't captured at entry — both are instances of the same underlying discipline gap: values that must be fixed at transaction time are instead being read live or defaulted.
+- **Audit logging coverage is inconsistent** — rigorous for some flows (stock additions), missing for others (direct product edits), confirming the differentiator above is not yet true everywhere it should be.
+- **List/total endpoints (Expenses, Sales, Bills) lack a consistent server-side sort/filter/paginate/aggregate-total convention** — several reported bugs (wrong running totals across pages, no sortable columns) trace back to this one missing pattern.
+- **Worker date-range restriction needs to be enforced server-side**, not hidden in the frontend — the same category of control as the existing profit-visibility gating, and should be designed as one coherent permission system with it.
 
 ## What to carry forward unchanged
 

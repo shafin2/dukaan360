@@ -6,6 +6,8 @@ A local Pakistani shop owner — grocery, general store, pharmacy, electronics, 
 
 Dukaan360 digitizes that: products, stock, billing (cash/credit/partial), customers, payments, expenses, and reports — for one shop today, with the data model already able to grow to multiple shops per business later.
 
+**Current real client:** a sweets/mithai shop — a perishable, weight-sold retail vertical, not a generic grocery box. This sharpens a few priorities directly: weighing-scale integration and batch/expiry tracking matter more, sooner, than they would for a generic retail client (see [10-feature-gap-matrix.md](./10-feature-gap-matrix.md)). Separately, deeper competitive research has flagged **wholesale/distribution as a named expansion target** beyond this first client — worth keeping in view (it's why party/customer-wise custom pricing shows up as a near-term priority), even though the v1 rewrite concept stays single-shop, per the non-negotiables below.
+
 ## Why we're rebuilding, not patching
 
 v1 works — it's in production, used by a real shop, and the feature set (billing, inventory, stock transfers, credit, waste/expiry write-offs, audit logs, worker roles) is already fairly complete for a single shop. But market feedback consistently says "this can be much better," and the reasons are structural, not cosmetic:
