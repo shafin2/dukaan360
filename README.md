@@ -17,9 +17,10 @@ Three research tracks feed this folder: an initial AI-driven sweep (vision, tech
 9. **[09-roadmap.md](./09-roadmap.md)** — phased build plan, with client-reported acceptance criteria folded into Phase 1
 10. **[10-feature-gap-matrix.md](./10-feature-gap-matrix.md)** — capability-by-capability P0–P3 backlog against 6 named competitors
 11. **[11-client-feedback-requirements.md](./11-client-feedback-requirements.md)** — 11 concrete bugs/gaps reported directly by the client running v1, each with a specific rewrite implication
+12. **[12-monorepo-saas-execution-plan.md](./12-monorepo-saas-execution-plan.md)** — execution layer on top of 01–11: the karobar.tech monorepo shape, self-serve signup/trial/billing, the platform admin panel, and the shadcn/GSAP/mobile-first frontend stack. Read this last — it assumes everything above it.
 
 ## Non-negotiables carried over from v1
 
 - **Single shop per tenant remains the working model.** The data model should stay multi-shop-capable (v1 already supports multiple shops per business), but we are not chasing multi-shop complexity in v1 of the rewrite — we're fixing the foundation under the same concept that's already working for one shop.
-- **Roles stay:** System Admin (platform operator) → Business Owner → Shop Worker.
-- **No self-registration** — accounts are provisioned, not signed up. This is a trust/security decision worth keeping.
+- **Roles stay:** Platform Admin (renamed from System Admin, now its own app — see [12-monorepo-saas-execution-plan.md](./12-monorepo-saas-execution-plan.md)) → Business Owner → Shop Worker.
+- **No self-registration *within a business*** — a Worker never signs up on their own, only an Owner adds them. This is unchanged. What's new: an Owner *can* now self-serve signup to create a brand-new tenant with a free trial — a SaaS growth layer sitting above this rule, not a contradiction of it. See [12-monorepo-saas-execution-plan.md](./12-monorepo-saas-execution-plan.md) §5.
